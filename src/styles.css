@@ -254,9 +254,15 @@ button{ -webkit-tap-highlight-color:transparent }
 @media(max-width:650px){.weather-map-canvas{height:340px}.weather-map-head{padding:13px}.radar-controls{gap:8px;padding:12px}.radar-controls button{padding:8px 10px;font-size:10px}.radar-controls>span{min-width:50px;font-size:9px}}
 
 
-.location-row{display:flex;align-items:center;gap:3px;min-width:0}
-.location-row .location-item{flex:1;min-width:0;width:100%}
-.location-row .location-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-location-row{display:flex;align-items:center;gap:3px;min-width:0;margin:0}
+.saved-location-row .location-item{flex:1;min-width:0;width:100%}
+.saved-location-row .location-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .remove-location{flex:none;width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--muted);opacity:.58;cursor:pointer}
 .remove-location:hover{background:var(--accent-soft);color:var(--ink);opacity:1}
 @media(hover:none){.remove-location{opacity:.85}}
+
+.daily-row{grid-template-columns:minmax(0,1.1fr) 30px minmax(80px,auto) minmax(110px,1fr)}
+.rain-chance{white-space:nowrap;min-width:0}
+.search-message{margin:0;padding:12px 14px;color:var(--muted);font-size:11px}
+.refresh-button:disabled{opacity:.5;cursor:wait}
+@media(max-width:650px){.daily-row{grid-template-columns:minmax(0,1fr) 22px minmax(70px,auto) minmax(90px,1fr);gap:6px}}
