@@ -141,3 +141,68 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 .garden-webgl-canvas{image-rendering:auto;transform:translateZ(0)}
 @media(max-width:650px){:root{--glass-blur:18px}.hero-card{backdrop-filter:blur(18px) saturate(155%)}.garden-webgl-host{touch-action:pan-y}}
 @media(prefers-reduced-motion:reduce){.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene{transition:none}}
+
+
+/* Device-aware layouts and tactile, milky liquid-glass surfaces */
+.app{--glass-blur:26px;--glass-fill:rgba(247,251,255,.82);--glass-top:rgba(255,255,255,.94);--glass-edge:rgba(255,255,255,.95);--glass-shadow:rgba(31,58,78,.14)}
+.app.night{--glass-fill:rgba(28,45,63,.88);--glass-top:rgba(69,91,111,.72);--glass-edge:rgba(204,226,244,.25);--glass-shadow:rgba(0,0,0,.28)}
+.topbar,.mobile-nav,.search-wrap,.search-results,.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.icon-button,.locate-button,.settings-modal,.garden-scene{
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(145%);
+  backdrop-filter:blur(var(--glass-blur)) saturate(145%);
+}
+.topbar{background:var(--glass-fill);border-bottom:1px solid var(--glass-edge);box-shadow:0 5px 24px var(--glass-shadow),inset 0 1px 0 var(--glass-top)}
+.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene,.search-wrap,.icon-button,.locate-button,.settings-modal{
+  background:linear-gradient(145deg,var(--glass-top) 0%,var(--glass-fill) 48%,color-mix(in srgb,var(--glass-fill) 82%,var(--accent) 18%) 100%);
+  border:1px solid var(--glass-edge);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(94,126,150,.10),0 12px 32px var(--glass-shadow);
+}
+.hero-card:after,.metric-card:after,.hourly-card:after,.daily-card:after,.page-panel:after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(118deg,rgba(255,255,255,.52) 0%,rgba(255,255,255,.12) 22%,transparent 43%,rgba(255,255,255,.14) 78%,transparent 100%);
+  opacity:.72;
+}
+.night .hero-card,.night .hourly-card,.night .daily-card,.night .metric-card,.night .sun-strip,.night .insight-card,.night .page-panel,.night .settings-modal{
+  background:linear-gradient(145deg,rgba(94,117,138,.74),rgba(31,50,68,.91) 52%,rgba(39,61,80,.9));
+  border-color:rgba(220,238,250,.28);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.12),0 16px 38px rgba(0,0,0,.24);
+}
+.metric-card,.hourly-card,.daily-card,.page-panel{position:relative;overflow:hidden}
+.metric-card>* ,.hourly-card>* ,.daily-card>* ,.page-panel>*{position:relative;z-index:1}
+.search-wrap,.icon-button,.locate-button{background:linear-gradient(145deg,var(--glass-top),var(--glass-fill))}
+.garden-scene{background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(214,232,245,.24));box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 18px 40px rgba(34,65,88,.12)}
+.night .garden-scene{background:linear-gradient(145deg,rgba(108,137,164,.32),rgba(18,36,55,.5))}
+.settings-modal{background:linear-gradient(145deg,var(--glass-top),var(--glass-fill));box-shadow:inset 0 1px 0 white,0 24px 80px rgba(8,24,38,.25)}
+/* Desktop gets a deliberate wider editorial layout; tablet and mobile get their own hierarchy. */
+@media(min-width:1200px){
+ .layout{max-width:1540px;margin:0 auto;grid-template-columns:230px minmax(0,1fr);gap:34px}
+ .main{max-width:1280px;padding:34px 44px 70px}
+ .topbar{padding-left:max(32px,calc((100vw - 1540px)/2));padding-right:max(32px,calc((100vw - 1540px)/2))}
+ .hero-card{min-height:410px;padding:36px 42px;grid-template-columns:minmax(300px,.8fr) minmax(440px,1.2fr)}
+ .hero-art,.garden-scene{min-height:320px}
+ .metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+ .hourly-card{padding:24px}
+ .section{margin-top:34px}
+}
+@media(min-width:651px) and (max-width:1199px){
+ .layout{grid-template-columns:170px minmax(0,1fr);gap:14px}
+ .main{padding:24px 20px 60px}
+ .hero-card{grid-template-columns:minmax(0,.85fr) minmax(220px,1.15fr);padding:24px;min-height:340px}
+ .hero-art,.garden-scene{min-height:260px}
+}
+@media(max-width:650px){
+ .topbar{background:var(--glass-fill);padding-left:15px;padding-right:15px}
+ .layout{display:block;width:100%}
+ .main{padding:20px 14px calc(94px + env(safe-area-inset-bottom))}
+ .hero-card{grid-template-columns:minmax(0,1fr) 118px;min-height:260px;padding:19px 15px 14px;gap:4px}
+ .hero-art,.garden-scene{min-height:190px}
+ .garden-scene-label{left:8px;right:8px;bottom:8px}
+ .garden-scene-label span{font-size:8px}
+ .garden-scene-label small{font-size:8px}
+ .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .metric-card{min-width:0}
+ .hourly-card{overflow-x:auto;overscroll-behavior-x:contain}
+ .mobile-nav{background:var(--glass-fill);box-shadow:0 -8px 28px var(--glass-shadow)}
+}
+@media(prefers-reduced-motion:reduce){
+ .app,.hero-card,.metric-card,.hourly-card,.daily-card,.page-panel{transition:none!important}
+}
