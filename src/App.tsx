@@ -33,14 +33,14 @@ const DEFAULT_PLACE: Place = { name: 'Riyadh', country: 'Saudi Arabia', latitude
 const API = 'https://api.open-meteo.com/v1/forecast';
 const codeText = (c:number) => c===0?'Clear sky':c<=2?'Partly cloudy':c===3?'Overcast':c<=48?'Foggy':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Rain showers':c<=86?'Snow showers':c>=95?'Thunderstorms':'Cloudy';
 function WeatherIcon({code,size=22}:{code:number,size?:number}) { const p={size,strokeWidth:1.7}; if(code===0) return <Sun {...p}/>; if(code<=3)return <Cloud {...p}/>; if(code<=48)return <CloudFog {...p}/>; if(code<=57)return <CloudDrizzle {...p}/>; if(code<=67||code<=82)return <CloudRain {...p}/>; if(code<=77||code<=86)return <CloudSnow {...p}/>; return <CloudLightning {...p}/>; }
-function getTheme(c:number,temp=20){if(c>=95)return 'storm';if(c>=71&&c<=86)return 'snow';if(c<=48&&c>=45)return 'fog';if(c>=51)return 'rain';if(temp>=35&&c<=2)return 'hot';return 'clear'}
+function getTheme(c:number,temp=20){if(c>=95)return 'storm';if(c>=71&&c<=86)return 'snow';if(c<=48&&c>=45)return 'fog';if(c===3)return 'cloud';if(c>=51)return 'rain';if(temp>=35&&c<=2)return 'hot';return 'clear'}
 function FWLogo(){return <div className="brand-mark" aria-label="ForWeather logo"><span>FW</span><i className="logo-drop d1"/><i className="logo-drop d2"/><i className="logo-drop d3"/></div>}
 function fmtTime(iso:string, tz?:string){try{return new Intl.DateTimeFormat('en',{hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date(iso))}catch{return '--:--'}}
 
 function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}){
  const [rotation,setRotation]=useState(-18),[tilt,setTilt]=useState(9);
  const drag=useRef<{x:number;y:number;rotation:number;tilt:number}|null>(null);
- const tone=code>=95?'storm':code>=71&&code<=86?'snow':code>=51?'rain':code<=48&&code>=45?'fog':temp>=35&&code<=2?'hot':'clear';
+ const tone=code>=95?'storm':code>=71&&code<=86?'snow':code<=48&&code>=45?'fog':code===3?'cloud':code>=51?'rain':temp>=35&&code<=2?'hot':'clear';
  const onDown=(e:ReactPointerEvent<HTMLDivElement>)=>{drag.current={x:e.clientX,y:e.clientY,rotation,tilt};e.currentTarget.setPointerCapture(e.pointerId)};
  const onMove=(e:ReactPointerEvent<HTMLDivElement>)=>{if(!drag.current)return;const dx=e.clientX-drag.current.x,dy=e.clientY-drag.current.y;setRotation(drag.current.rotation+dx*.65);setTilt(Math.max(-4,Math.min(24,drag.current.tilt-dy*.22)))};
  const onUp=()=>{drag.current=null};
@@ -75,11 +75,11 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     {tone==='rain'&&<g fill="none" stroke="#b8e2f2" strokeWidth="2" strokeLinecap="round" opacity=".85"><path d="m82 53-5 12m35-30-5 12m168 21-5 12m-33-42-5 12m-99 83-5 12"/></g>}
     {tone==='storm'&&<g fill="none" stroke="#d7e9f5" strokeWidth="2.5" strokeLinecap="round" opacity=".9"><path d="m78 46-7 15m43-27-7 15m166 17-7 15m-35-44-7 15"/></g>}
     {tone==='snow'&&<g fill="#fff" opacity=".95"><circle cx="81" cy="50" r="3"/><circle cx="118" cy="30" r="2.5"/><circle cx="264" cy="44" r="3"/><circle cx="294" cy="76" r="2"/><circle cx="235" cy="22" r="2"/></g>}
-    {(tone==='clear'||tone==='hot')&&<g><circle cx="278" cy="45" r="18" fill="#ffd98d" opacity=".92"/><circle cx="278" cy="45" r="26" fill="#ffd98d" opacity=".12"/></g>}
+    {(tone==='clear'||tone==='hot')&&<g><circle cx="278" cy="45" r="18" fill="#ffd98d" opacity=".92"/><circle cx="278" cy="45" r="26" fill="#ffd98d" opacity=".12"/></g>}{tone==='cloud'&&<g fill="#edf4f7" opacity=".92"><ellipse cx="270" cy="54" rx="24" ry="12"/><circle cx="257" cy="48" r="13"/><circle cx="273" cy="43" r="17"/><circle cx="289" cy="51" r="12/></g>}
     {tone==='fog'&&<g stroke="#f4f8f8" strokeWidth="5" strokeLinecap="round" opacity=".5"><path d="M75 47h68m-47 14h92m73-24h38"/></g>}
    </svg>
   </div>
-  <div className="garden-caption"><span>{tone==='hot'?'DRY & SUNNY':tone==='clear'?(isDay?'SUNLIT GARDEN':'CLEAR NIGHT'):tone==='rain'?'FRESH AFTER RAIN':tone==='storm'?'STORMY CONDITIONS':tone==='snow'?'WINTER GARDEN':'SOFT & MISTY'}</span><small>Drag to explore · live weather scene</small></div>
+  <div className="garden-caption"><span>{tone==='hot'?'DRY & SUNNY':tone==='clear'?(isDay?'SUNLIT GARDEN':'CLEAR NIGHT'):tone==='rain'?'FRESH AFTER RAIN':tone==='storm'?'STORMY CONDITIONS':tone==='snow'?'WINTER GARDEN':tone==='cloud'?'OVERCAST & CALM':'SOFT & MISTY'}</span><small>Drag to explore · live weather scene</small></div>
  </div>
 }
 
