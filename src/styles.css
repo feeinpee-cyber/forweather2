@@ -503,3 +503,74 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
  .app,.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene{transition:none!important}
  .app:before,.app:after{animation:none!important}
 }
+
+
+
+/* Animated weather atmosphere: CSS-only, GPU-light and responsive */
+.app{isolation:isolate}
+.weather-effects{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:strict}
+.weather-effects i{position:absolute;display:block;pointer-events:none}
+.topbar,.layout,.mobile-nav{position:relative;z-index:2}
+.fx-cloud{width:42vw;height:18vw;max-height:230px;min-height:100px;border-radius:50%;filter:blur(42px);background:rgba(255,255,255,.2);top:4%;left:-12%;opacity:.25;animation:cloud-drift 48s ease-in-out infinite alternate}
+.fx-cloud-b{top:25%;left:56%;width:35vw;height:15vw;animation-duration:62s;animation-direction:alternate-reverse;opacity:.17}
+.fx-sun{width:34vw;height:34vw;max-width:520px;max-height:520px;min-width:220px;min-height:220px;right:-9%;top:-17%;border-radius:50%;background:radial-gradient(circle,rgba(255,244,201,.4),rgba(255,229,167,.15) 38%,transparent 70%);animation:sun-breathe 12s ease-in-out infinite alternate}
+.fx-night .fx-sun{opacity:0}
+.fx-moon{width:170px;height:170px;right:14%;top:8%;border-radius:50%;background:radial-gradient(circle at 36% 34%,#f4f3e8 0 3%,#d4e0e9 28%,#a9bfd0 60%,transparent 72%);box-shadow:0 0 55px rgba(207,228,247,.25);opacity:0}
+.fx-night .fx-moon{opacity:.38;animation:moon-float 14s ease-in-out infinite alternate}
+.fx-rain{inset:-25% -15%;opacity:0;background:repeating-linear-gradient(105deg,transparent 0 26px,rgba(230,244,255,.22) 27px,transparent 29px 54px);background-size:110px 110px;animation:rain-fall .85s linear infinite;will-change:transform}
+.fx-snow{inset:-20% 0 0;opacity:0;background-image:radial-gradient(3px 3px at 12% 17%,#fff 55%,transparent 70%),radial-gradient(2px 2px at 26% 62%,#fff 55%,transparent 70%),radial-gradient(4px 4px at 48% 34%,#fff 55%,transparent 70%),radial-gradient(2px 2px at 68% 78%,#fff 55%,transparent 70%),radial-gradient(3px 3px at 87% 23%,#fff 55%,transparent 70%);background-size:260px 260px;animation:snow-drift 15s linear infinite}
+.fx-wind{width:65vw;height:35vh;right:-35%;top:25%;border-top:1px solid rgba(255,255,255,.15);border-radius:50%;filter:blur(2px);opacity:0;transform:rotate(-16deg);animation:wind-sweep 14s ease-in-out infinite}
+.fx-wind:before,.fx-wind:after{content:"";position:absolute;left:-22%;top:35px;width:90%;height:65%;border-top:1px solid rgba(255,255,255,.12);border-radius:50%}
+.fx-wind:after{top:75px;left:-8%;width:75%}
+.fx-fog{inset:18% -20%;opacity:0;background:linear-gradient(180deg,transparent,rgba(232,242,247,.16) 35%,rgba(232,242,247,.25) 55%,transparent 80%);filter:blur(24px);animation:fog-slide 18s ease-in-out infinite alternate}
+.fx-lightning{inset:0;background:rgba(225,239,255,.32);opacity:0;animation:lightning-flash 9s linear infinite}
+.fx-stars{inset:0;opacity:0;background-image:radial-gradient(2px 2px at 11% 17%,#fff 50%,transparent 70%),radial-gradient(1px 1px at 28% 34%,#fff 50%,transparent 70%),radial-gradient(2px 2px at 64% 12%,#fff 50%,transparent 70%),radial-gradient(1px 1px at 79% 38%,#fff 50%,transparent 70%),radial-gradient(1px 1px at 91% 18%,#fff 50%,transparent 70%);background-size:340px 240px;animation:stars-twinkle 5s ease-in-out infinite alternate}
+.fx-night .fx-stars{opacity:.48}
+.fx-snow{opacity:0}
+.fx-wind{opacity:0}
+.fx-fog{opacity:0}
+.fx-lightning{opacity:0}
+.fx-cloud{opacity:.22}
+.fx-clear .fx-sun,.fx-hot .fx-sun{opacity:1}
+.fx-cloud .fx-cloud,.fx-fog .fx-cloud,.fx-rain .fx-cloud,.fx-storm .fx-cloud{opacity:.48}
+.fx-rain .fx-rain{opacity:.48}
+.fx-snow .fx-snow{opacity:.72}
+.fx-fog .fx-fog{opacity:.8}
+.fx-rain .fx-wind,.fx-storm .fx-wind,.fx-hot .fx-wind{opacity:.36}
+.fx-storm .fx-cloud{opacity:.62}
+.fx-storm .fx-lightning{opacity:.0}
+.fx-storm .fx-lightning{animation:lightning-flash 8s linear infinite}
+.fx-night .fx-cloud{opacity:.18}
+@keyframes cloud-drift{from{transform:translate3d(-4%,0,0)}to{transform:translate3d(24%,8%,0)}}
+@keyframes sun-breathe{from{transform:scale(.96);opacity:.65}to{transform:scale(1.06);opacity:1}}
+@keyframes moon-float{from{transform:translate3d(0,0,0)}to{transform:translate3d(-12px,8px,0)}}
+@keyframes rain-fall{from{transform:translate3d(2%,-5%,0)}to{transform:translate3d(-3%,5%,0)}}
+@keyframes snow-drift{from{transform:translate3d(-2%,-2%,0)}to{transform:translate3d(3%,8%,0)}}
+@keyframes wind-sweep{0%,100%{transform:translate3d(0,0,0) rotate(-16deg)}50%{transform:translate3d(-18%,12%,0) rotate(-12deg)}}
+@keyframes fog-slide{from{transform:translate3d(-5%,0,0)}to{transform:translate3d(7%,0,0)}}
+@keyframes lightning-flash{0%,88%,90%,94%,100%{opacity:0}89%,92%{opacity:.42}93%{opacity:.08}}
+@keyframes stars-twinkle{from{opacity:.25}to{opacity:.62}}
+.weather-art{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(5,25,44,.12));border:1px solid rgba(255,255,255,.2);min-height:275px;height:100%;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.weather-art:before,.weather-art:after{content:"";position:absolute;pointer-events:none}
+.art-glow{position:absolute;width:190px;height:190px;left:50%;top:12%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,245,205,.5),rgba(255,220,154,.12) 48%,transparent 72%);animation:sun-breathe 9s ease-in-out infinite alternate}
+.art-celestial{position:absolute;width:96px;height:96px;left:50%;top:22%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 35% 32%,#fff9d9,#ffdc91 48%,#f0a65f 75%);box-shadow:0 0 45px rgba(255,220,145,.5);animation:moon-float 10s ease-in-out infinite alternate}
+.art-night .art-celestial{display:none}
+.art-moon{position:absolute;width:88px;height:88px;left:50%;top:20%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#d9e7f2 58%,#a5bbce);box-shadow:0 0 48px rgba(219,237,255,.35);animation:moon-float 12s ease-in-out infinite alternate}
+.art-cloud{position:absolute;z-index:2;top:40%;left:27%;width:145px;height:48px;border-radius:50px;background:linear-gradient(180deg,#fff,#c9d9e4);filter:drop-shadow(0 10px 13px rgba(29,62,86,.13));animation:cloud-drift 16s ease-in-out infinite alternate}
+.art-cloud:before,.art-cloud:after{content:"";position:absolute;bottom:12px;border-radius:50%;background:inherit}
+.art-cloud:before{width:68px;height:68px;left:20px}.art-cloud:after{width:82px;height:82px;right:15px;bottom:8px}
+.art-cloud-two{top:54%;left:48%;transform:scale(.62);opacity:.55;animation-duration:23s;animation-direction:alternate-reverse}
+.art-rain .art-cloud,.art-storm .art-cloud,.art-fog .art-cloud{background:linear-gradient(180deg,#d7e2e9,#8da4b5)}
+.art-storm .art-cloud{background:linear-gradient(180deg,#8b9aa8,#4e6275)}
+.art-snow .art-cloud{background:linear-gradient(180deg,#fff,#dceaf1)}
+.art-hot .art-cloud,.art-clear .art-cloud{opacity:.2;transform:scale(.7)}
+.art-rain-streaks,.art-snowflakes,.art-mist{position:absolute;inset:0;z-index:3;pointer-events:none}
+.art-rain-streaks{background:repeating-linear-gradient(108deg,transparent 0 16px,rgba(226,244,255,.7) 17px,transparent 19px 35px);animation:rain-fall .7s linear infinite}
+.art-snowflakes{background-image:radial-gradient(3px 3px at 14% 22%,white 60%,transparent 70%),radial-gradient(2px 2px at 38% 66%,white 60%,transparent 70%),radial-gradient(4px 4px at 72% 28%,white 60%,transparent 70%),radial-gradient(2px 2px at 88% 75%,white 60%,transparent 70%);background-size:125px 130px;animation:snow-drift 9s linear infinite}
+.art-mist{background:linear-gradient(180deg,transparent 35%,rgba(237,247,251,.48) 58%,transparent 75%);filter:blur(10px);animation:fog-slide 12s ease-in-out infinite alternate}
+.art-lightning{position:absolute;z-index:4;left:54%;top:46%;width:24px;height:78px;background:#fff8cb;clip-path:polygon(52% 0,100% 0,62% 43%,100% 43%,15% 100%,35% 54%,0 54%);filter:drop-shadow(0 0 14px #fff);animation:lightning-flash 7s linear infinite}
+.art-storm .art-glow{background:radial-gradient(circle,rgba(169,197,222,.22),transparent 68%)}
+.art-horizon{position:absolute;bottom:-60px;left:-20%;width:140%;height:120px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02));filter:blur(2px)}
+.weather-art .garden-scene-label{bottom:14px}
+@media(max-width:650px){.weather-art{min-height:188px}.art-cloud{left:12%;transform:scale(.72)}.art-cloud-two{left:37%;transform:scale(.5)}.art-celestial{width:62px;height:62px}.art-moon{width:58px;height:58px}.fx-sun{width:70vw;height:70vw;right:-25%;top:-12%}}
+@media(prefers-reduced-motion:reduce){.weather-effects i,.weather-art *{animation:none!important;transition:none!important}}
