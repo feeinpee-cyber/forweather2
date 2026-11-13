@@ -252,3 +252,11 @@ button{ -webkit-tap-highlight-color:transparent }
 .map-disclaimer{margin:0;padding:0 16px 14px;color:var(--muted);font-size:10px;line-height:1.6}
 .map-disclaimer a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 @media(max-width:650px){.weather-map-canvas{height:340px}.weather-map-head{padding:13px}.radar-controls{gap:8px;padding:12px}.radar-controls button{padding:8px 10px;font-size:10px}.radar-controls>span{min-width:50px;font-size:9px}}
+
+
+.location-row{display:flex;align-items:center;gap:3px;min-width:0}
+.location-row .location-item{flex:1;min-width:0;width:100%}
+.location-row .location-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.remove-location{flex:none;width:26px;height:26px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:var(--muted);opacity:.58;cursor:pointer}
+.remove-location:hover{background:var(--accent-soft);color:var(--ink);opacity:1}
+@media(hover:none){.remove-location{opacity:.85}}
