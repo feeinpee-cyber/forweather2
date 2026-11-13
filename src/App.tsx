@@ -107,6 +107,7 @@ const ForecastChart=lazy(async()=>{
   const stroke=mode==='temperature'?'#d79a48':mode==='rain'?'#4b9ec8':'#6d9b83';
   return <R.ResponsiveContainer width="100%" height="100%"><R.AreaChart data={data} margin={{top:8,right:4,left:0,bottom:0}}><defs><linearGradient id="tempFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8fb9e8" stopOpacity={.28}/><stop offset="100%" stopColor="#b7a0ff" stopOpacity={0}/></linearGradient></defs><R.CartesianGrid stroke="#ffffff12" vertical={false}/><R.XAxis dataKey="time" tickFormatter={formatTime} tick={{fill:'#61768a',fontSize:10}} interval={3} axisLine={false} tickLine={false}/><R.YAxis hide domain={['dataMin - 3','dataMax + 3']}/><R.Tooltip contentStyle={{background:'#ffffff',border:'1px solid #dce6ee',borderRadius:12,color:'#203448'}} labelFormatter={v=>formatTime(String(v))} formatter={(v:any)=>[mode==='temperature'?convert(Number(v))+(unit==='C'?'°C':'°F'):mode==='rain'?Number(v)+'%':Number(v)+' km/h',mode==='temperature'?'Temperature':mode==='rain'?'Precipitation chance':'Wind speed']}/><R.Area isAnimationActive={false} type="monotone" dataKey={key} stroke={stroke} strokeWidth={2.5} fill="url(#tempFill)" dot={false} activeDot={{r:4,fill:'#fff'}}/></R.AreaChart></R.ResponsiveContainer>
  }
+ };
 });
 function WeatherMap({latitude,longitude,name,timezone}:{latitude:number;longitude:number;name:string;timezone:string}){
  const host=useRef<HTMLDivElement|null>(null),mapRef=useRef<any>(null),radarRef=useRef<any>(null),manifestRef=useRef<any>(null);
