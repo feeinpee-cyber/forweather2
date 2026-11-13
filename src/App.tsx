@@ -98,6 +98,53 @@ const WeatherGarden=memo(function WeatherGarden({code,temp,isDay}:{code:number;t
  },[code,temp,isDay]);
  return <div className="garden-scene"><div className="garden-scene-label"><span>{code>=95?'THUNDER & LIGHTNING':((code>=71&&code<=77)||code===85||code===86)?'SNOWFALL':code>=51?'RAIN SHOWERS':code>=45?'MIST & FOG':temp>=35?'SUN & HEAT':!isDay?'MOONLIT SKY':'SUNNY SKIES'}</span><small>{failed?'3D scene unavailable · check WebGL or connection':ready?'Drag to orbit · scroll to zoom':'Preparing weather scene…'}</small></div><div ref={host} className="garden-webgl-host"/></div>
 });
+function WeatherMap({latitude,longitude,name}:{latitude:number;longitude:number;name:string}){
+ const host=useRef<HTMLDivElement|null>(null),mapRef=useRef<any>(null),radarRef=useRef<any>(null),manifestRef=useRef<any>(null);
+ const [frames,setFrames]=useState<{time:number;path:string}[]>([]),[frameIndex,setFrameIndex]=useState(0),[playing,setPlaying]=useState(false),[ready,setReady]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{
+  let disposed=false,observer:ResizeObserver|undefined,map:any;
+  const init=async()=>{
+   try{
+    // @ts-ignore Leaflet is loaded from its browser ESM CDN build.
+    const module=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm');
+    const response=await fetch('https://api.rainviewer.com/public/weather-maps.json');
+    if(!response.ok)throw new Error('Radar service unavailable');
+    const manifest=await response.json();
+    if(disposed||!host.current)return;
+    const L=module.default??module;
+    const available=(manifest.radar?.past||[]) as {time:number;path:string}[];
+    if(!available.length)throw new Error('No radar frames are currently available for this region');
+    map=L.map(host.current,{zoomControl:true,scrollWheelZoom:false,preferCanvas:true}).setView([latitude,longitude],6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:7,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+    L.circleMarker([latitude,longitude],{radius:7,color:'#fff',weight:2,fillColor:'#d58c38',fillOpacity:1}).addTo(map).bindPopup(name);
+    manifestRef.current=manifest;
+    mapRef.current=map;
+    radarRef.current=L.tileLayer('',{opacity:.72,maxNativeZoom:7,maxZoom:7,attribution:'Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'}).addTo(map);
+    setFrames(available);setFrameIndex(available.length-1);setReady(true);
+    observer=new ResizeObserver(()=>map?.invalidateSize());observer.observe(host.current);
+   }catch(e){if(!disposed)setError('Radar is temporarily unavailable. The regular forecast is still available.');console.warn('ForWeather radar map unavailable',e)}
+  };
+  void init();
+  return()=>{disposed=true;observer?.disconnect();map?.remove();mapRef.current=null;radarRef.current=null;manifestRef.current=null};
+ },[latitude,longitude,name]);
+ useEffect(()=>{
+  if(!frames.length||!radarRef.current||!manifestRef.current)return;
+  const frame=frames[frameIndex],manifest=manifestRef.current;
+  if(frame)radarRef.current.setUrl(`${manifest.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`);
+ },[frames,frameIndex]);
+ useEffect(()=>{
+  if(!playing||frames.length<2)return;
+  const timer=window.setInterval(()=>setFrameIndex(i=>(i+1)%frames.length),850);
+  return()=>window.clearInterval(timer);
+ },[playing,frames.length]);
+ const active=frames[frameIndex];
+ return <div className="weather-map-panel">
+  <div className="weather-map-head"><div><b>Precipitation radar</b><small>Recent radar frames · approximately 2 hours</small></div><span className={ready?'radar-live':'radar-wait'}>{ready?'RADAR READY':'LOADING'}</span></div>
+  <div ref={host} className="weather-map-canvas"/>
+  <div className="radar-controls"><button onClick={()=>setPlaying(v=>!v)} disabled={!ready||frames.length<2}>{playing?'Pause':'Play radar'}</button><input aria-label="Radar timeline" type="range" min="0" max={Math.max(0,frames.length-1)} value={frameIndex} disabled={!ready||!frames.length} onChange={e=>setFrameIndex(Number(e.target.value))}/><span>{active?new Date(active.time*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'—'}</span></div>
+  <p className="map-disclaimer">{error||'Radar coverage varies by location. This layer shows observed precipitation, not a future forecast.'} · Map data © OpenStreetMap · Radar by <a href="https://www.rainviewer.com/" target="_blank" rel="noreferrer">RainViewer</a></p>
+ </div>
+}
 function App(){
  const [deviceClass,setDeviceClass]=useState(()=>typeof window==='undefined'?'device-desktop':window.matchMedia('(max-width:650px)').matches?'device-mobile':window.matchMedia('(max-width:1100px)').matches?'device-tablet':'device-desktop');
  useEffect(()=>{const update=()=>setDeviceClass(window.matchMedia('(max-width:650px)').matches?'device-mobile':window.matchMedia('(max-width:1100px)').matches?'device-tablet':'device-desktop');window.addEventListener('resize',update,{passive:true});return()=>window.removeEventListener('resize',update)},[]);
@@ -156,7 +203,7 @@ function App(){
    <section className="section"><div className="section-heading"><div><span className="eyebrow">PLAN AHEAD</span><h3>10-day forecast</h3></div><button className="text-button" onClick={()=>setTab('Forecast')}>Details ↗</button></div><div className="daily-card">{daily.map((d,i)=><div className="daily-row" key={d.date}><b>{i===0?'Today':new Intl.DateTimeFormat('en',{weekday:'short',timeZone:'UTC'}).format(new Date(d.date+'T12:00:00Z'))}</b><WeatherIcon code={d.code} size={20}/><span className="rain-chance"><Droplets size={12}/>{d.rain??0}% · {(d.precip??0).toFixed(1)} mm</span><div className="range"><span>{convert(d.lo)}°</span><div><i style={{left:`${Math.max(0,Math.min(100,(d.lo+5)/(d.hi+10)*100))}%`}}/></div><strong>{convert(d.hi)}°</strong></div><small className="daily-wind"><Wind size={12}/>{Math.round(d.windMax??0)} km/h max wind</small></div>)}</div></section>
    <section className="sun-strip"><div><Sunrise/><span><small>SUNRISE</small><b>{sunrise?fmtTime(sunrise,tz):'—'}</b></span></div><div className="day-progress"><div/><small>DAYLIGHT WINDOW</small></div><div><Sunset/><span><small>SUNSET</small><b>{sunset?fmtTime(sunset,tz):'—'}</b></span></div></section></>}
    {tab==='Forecast'&&<section className="section page-panel"><span className="eyebrow">LOOK AHEAD</span><h2>Forecast</h2><p className="muted">Your week, with the details that help you plan.</p><div className="daily-card">{daily.map((d,i)=><div className="daily-row" key={d.date}><b>{new Intl.DateTimeFormat('en',{weekday:'long',month:'short',day:'numeric',timeZone:'UTC'}).format(new Date(d.date+'T12:00:00Z'))}</b><WeatherIcon code={d.code} size={22}/><span className="rain-chance"><Droplets size={12}/>{d.rain??0}%</span><div className="range"><span>{convert(d.lo)}°</span><div/><strong>{convert(d.hi)}°</strong></div></div>)}</div><h3>Hourly detail</h3><div className="hour-detail">{hours.map(h=><div key={h.time}><span>{fmtTime(h.time,tz)}</span><WeatherIcon code={h.code}/><b>{convert(h.temp)}°</b><span><Droplets size={13}/>{h.rain}%</span><span><Wind size={13}/>{h.wind} km/h</span></div>)}</div></section>}
-   {tab==='Maps'&&<section className="section page-panel"><span className="eyebrow">WEATHER IN MOTION</span><h2>Weather maps</h2><p className="muted">Map layers are planned for the next build. This starter keeps the forecast data live while we integrate a map provider.</p><div className="map-placeholder"><div className="map-grid"/><div className="map-pin"><MapPin size={28}/><b>{place.name}</b></div><span>MAP LAYERS COMING NEXT</span></div><div className="map-layer-list">{['Precipitation radar','Wind flow','Temperature','Cloud cover','Air quality'].map(x=><div key={x}><Cloud size={17}/>{x}<span>Planned</span></div>)}</div></section>}
+   {tab==='Maps'&&<section className="section page-panel"><span className="eyebrow">WEATHER IN MOTION</span><h2>Weather radar</h2><p className="muted">Explore recent precipitation around {place.name}. Move through the radar timeline to see how rain and snow have been moving.</p><WeatherMap latitude={place.latitude} longitude={place.longitude} name={place.name}/></section>}
    {tab==='Insights'&&<section className="section page-panel"><span className="eyebrow">BEYOND THE FORECAST</span><h2>Weather insights</h2><p className="muted">A clearer interpretation of the conditions around you.</p><div className="insight-grid"><div className="insight-card"><Sun/><small>OUTDOOR COMFORT</small><b>{c?Math.max(0,100-Math.abs(c.apparent_temperature-22)*3-c.relative_humidity_2m*.25):'—'} / 100</b><p>A simple comfort estimate based on apparent temperature and humidity, not a medical or safety rating.</p></div><div className="insight-card"><Activity/><small>AIR QUALITY</small><b>{aqiLabel}</b><p>US AQI {quality??'unavailable'} · PM2.5 {weather?.air?.current?.pm2_5??'—'} μg/m³ · PM10 {weather?.air?.current?.pm10??'—'} μg/m³</p></div><div className="insight-card"><Wind/><small>WIND CONDITIONS</small><b>{c?.wind_speed_10m??'—'} km/h</b><p>{c?.wind_gusts_10m>35?'Strong gusts are possible.': 'Wind conditions are currently being monitored.'}</p></div><div className="insight-card"><Sunrise/><small>DAYLIGHT</small><b>{sunrise?fmtTime(sunrise,tz)+' – '+fmtTime(sunset,tz):'—'}</b><p>Sunrise and sunset based on the selected location.</p></div><div className="insight-card"><Moon/><small>MOON PHASE</small><b>{moon.emoji} {moon.name}</b><p>{moon.illumination}% illuminated · lunar age {moon.age} days. Approximate astronomical estimate.</p></div></div></section>}
    {error&&<div className="error-banner">{error}<button onClick={()=>load(place)}>Retry</button></div>}
    <footer>ForWeather <span>·</span> Weather data by Open-Meteo <span>·</span> Forecasts are informational, not official warnings.</footer>
