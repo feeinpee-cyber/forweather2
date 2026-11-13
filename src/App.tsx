@@ -52,14 +52,14 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     const cores=navigator.hardwareConcurrency||4;
     const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory||4;
     const lowPower=cores<=4||memory<=4;
-    const pixelCap=touch?1.15:(lowPower?.72:.9);
-    const fpsInterval=touch?1000/42:1000/(lowPower?24:30);
+    const pixelCap=touch?1.1:(lowPower?.68:.82);
+    const fpsInterval=touch?1000/42:1000/(lowPower?32:40);
     const scene=new THREE.Scene();
     const night=!isDay,storm=code>=95,rain=(code>=51&&code<=67)||(code>=80&&code<=82),snow=(code>=71&&code<=77)||code===85||code===86,fog=code>=45&&code<=48,cloudy=code>=2&&code<=3,hot=temp>=35&&code<=1;
     const skyColor=night?0x101e35:storm?0x657b91:rain||fog||cloudy?0xaec3d1:snow?0xc9dce9:hot?0xeacb9f:0x9cccf0;
     scene.background=new THREE.Color(skyColor);scene.fog=new THREE.Fog(skyColor,13,30);
     const camera=new THREE.PerspectiveCamera(38,1,.1,100);
-    renderer=new THREE.WebGLRenderer({antialias:!lowPower,alpha:false,powerPreference:'low-power',stencil:false,depth:true});
+    renderer=new THREE.WebGLRenderer({antialias:!lowPower,alpha:false,powerPreference:touch?'low-power':'high-performance',stencil:false,depth:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));
     renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
     renderer.domElement.className='garden-webgl-canvas';renderer.domElement.setAttribute('aria-label','Interactive real-time 3D weather scene. Drag to orbit.');
