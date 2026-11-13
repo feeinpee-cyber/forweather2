@@ -266,3 +266,5 @@ button{ -webkit-tap-highlight-color:transparent }
 .search-message{margin:0;padding:12px 14px;color:var(--muted);font-size:11px}
 .refresh-button:disabled{opacity:.5;cursor:wait}
 @media(max-width:650px){.daily-row{grid-template-columns:minmax(0,1fr) 22px minmax(70px,auto) minmax(90px,1fr);gap:6px}}
+
+.chart-loading{height:100%;display:grid;place-items:center;color:var(--muted);font-size:11px}
