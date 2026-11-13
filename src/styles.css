@@ -114,3 +114,30 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 @media(max-width:900px){.hero-card{grid-template-columns:minmax(0,.9fr) minmax(250px,1.1fr);min-height:340px}.hero-art{min-height:250px}.garden-scene{min-height:250px}}
 @media(max-width:650px){.hero-card{grid-template-columns:minmax(0,1fr) minmax(130px,.8fr);padding:20px 16px;min-height:280px}.hero-art,.garden-scene{min-height:220px}.garden-scene-label{left:9px;right:9px;bottom:8px;display:block}.garden-scene-label small{display:block;margin-top:4px}.temperature{font-size:64px;letter-spacing:-4px}.hero-copy .eyebrow{font-size:8px}.hero-copy h2{font-size:17px}.hero-copy p{font-size:10px}.hero-tags{gap:5px;flex-wrap:wrap}.hero-foot{grid-column:1/-1}}
 @media(prefers-reduced-motion:reduce){.app:before,.app:after{animation:none}}
+
+
+/* Liquid-glass interface + weather-reactive depth */
+.app{--glass-blur:22px;--glass-edge:rgba(255,255,255,.42);--glass-highlight:rgba(255,255,255,.32)}
+.topbar,.mobile-nav,.search-wrap,.search-results,.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.icon-button,.locate-button,.unit-toggle,.settings-modal,.garden-scene{backdrop-filter:blur(var(--glass-blur)) saturate(165%);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(165%)}
+.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene,.search-wrap,.icon-button,.locate-button{border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--glass-highlight),0 14px 42px rgba(24,49,68,.09)}
+.hero-card{background:linear-gradient(135deg,rgba(255,255,255,.48),rgba(255,255,255,.15));}
+.night .hero-card,.night .hourly-card,.night .daily-card,.night .metric-card,.night .sun-strip,.night .insight-card,.night .page-panel{background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.035));border-color:rgba(255,255,255,.17);box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 18px 48px rgba(0,0,0,.12)}
+.app.clear{--accent:#e3a94e;--accent-soft:rgba(227,169,78,.16)}
+.app.hot{--accent:#c77a3e;--accent-soft:rgba(199,122,62,.16)}
+.app.cloud{--accent:#7799ae;--accent-soft:rgba(119,153,174,.16)}
+.app.rain{--accent:#548cae;--accent-soft:rgba(84,140,174,.17)}
+.app.fog{--accent:#8199a5;--accent-soft:rgba(129,153,165,.17)}
+.app.snow{--accent:#75a8c7;--accent-soft:rgba(117,168,199,.18)}
+.app.storm{--accent:#8b9eb8;--accent-soft:rgba(139,158,184,.2)}
+.app.storm .hero-card,.app.storm .garden-scene{background:linear-gradient(135deg,rgba(37,54,73,.32),rgba(91,111,133,.18))}
+.app.rain .hero-card{background:linear-gradient(135deg,rgba(219,237,248,.42),rgba(120,159,183,.18))}
+.app.snow .hero-card{background:linear-gradient(135deg,rgba(255,255,255,.66),rgba(185,220,238,.2))}
+.app.hot .hero-card{background:linear-gradient(135deg,rgba(255,246,222,.62),rgba(238,184,119,.19))}
+.app.night .topbar,.app.night .mobile-nav{background:rgba(13,29,46,.48);border-color:rgba(255,255,255,.15)}
+.app.night .icon-button,.app.night .search-wrap,.app.night .unit-toggle{background:rgba(255,255,255,.09)}
+.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene{transition:background .9s ease,border-color .7s ease,box-shadow .7s ease,transform .35s ease}
+.metric-card:hover,.insight-card:hover{transform:translateY(-2px)}
+.garden-webgl-host{contain:layout paint size;will-change:transform}
+.garden-webgl-canvas{image-rendering:auto;transform:translateZ(0)}
+@media(max-width:650px){:root{--glass-blur:18px}.hero-card{backdrop-filter:blur(18px) saturate(155%)}.garden-webgl-host{touch-action:pan-y}}
+@media(prefers-reduced-motion:reduce){.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.garden-scene{transition:none}}
