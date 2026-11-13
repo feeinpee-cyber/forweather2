@@ -119,7 +119,7 @@ function WeatherMap({latitude,longitude,name}:{latitude:number;longitude:number;
     L.circleMarker([latitude,longitude],{radius:7,color:'#fff',weight:2,fillColor:'#d58c38',fillOpacity:1}).addTo(map).bindPopup(name);
     manifestRef.current=manifest;
     mapRef.current=map;
-    radarRef.current=L.tileLayer('',{opacity:.72,maxNativeZoom:7,maxZoom:7,attribution:'Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'}).addTo(map);
+    const latest=available[available.length-1];radarRef.current=L.tileLayer(`${manifest.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,{opacity:.72,maxNativeZoom:7,maxZoom:7,attribution:'Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'}).addTo(map);
     setFrames(available);setFrameIndex(available.length-1);setReady(true);
     observer=new ResizeObserver(()=>map?.invalidateSize());observer.observe(host.current);
    }catch(e){if(!disposed)setError('Radar is temporarily unavailable. The regular forecast is still available.');console.warn('ForWeather radar map unavailable',e)}
@@ -134,7 +134,7 @@ function WeatherMap({latitude,longitude,name}:{latitude:number;longitude:number;
  },[frames,frameIndex]);
  useEffect(()=>{
   if(!playing||frames.length<2)return;
-  const timer=window.setInterval(()=>setFrameIndex(i=>(i+1)%frames.length),850);
+  const timer=window.setInterval(()=>setFrameIndex(i=>i>=frames.length-1?0:i+1),850);
   return()=>window.clearInterval(timer);
  },[playing,frames.length]);
  const active=frames[frameIndex];
