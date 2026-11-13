@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Activity, Bell, CalendarDays, ChevronDown, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Compass, Droplets, Eye, Gauge, MapPin, Menu, Moon, Search, Settings2, Sun, Sunrise, Sunset, Thermometer, Volume2, VolumeX, Wind, X } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -56,7 +56,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     scene.fog=new THREE.Fog(skyColor,12,28);
     const camera=new THREE.PerspectiveCamera(38,1,.1,100);
     camera.position.set(6.6,5.4,8.8);
-    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
+    renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
     renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -64,7 +64,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     renderer.domElement.className='garden-webgl-canvas';renderer.domElement.setAttribute('aria-label','Interactive real-time 3D weather garden. Drag to orbit.');
     root.appendChild(renderer.domElement);
     const hemi=new THREE.HemisphereLight(night?0x7896c0:0xe5f4ff,0x4c604a,night?1.1:2.1);scene.add(hemi);
-    const sunLight=new THREE.DirectionalLight(night?0x9bb8e8:0xffedc5,night?.75:3.1);sunLight.position.set(-5,9,5);sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);scene.add(sunLight);
+    const sunLight=new THREE.DirectionalLight(night?0x9bb8e8:0xffedc5,night ? 0.75 : 3.1);sunLight.position.set(-5,9,5);sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);scene.add(sunLight);
     const groundMat=new THREE.MeshStandardMaterial({color:snow?0xe7eff0:hot?0xb58b5a:rain||storm?0x426d54:0x6d9d61,roughness:.94});
     const island=new THREE.Mesh(new THREE.CylinderGeometry(3.15,3.25,.48,8,1),new THREE.MeshStandardMaterial({color:snow?0xc9dadd:hot?0x815c3e:0x4d6046,roughness:1}));
     island.position.y=-.1;island.castShadow=true;island.receiveShadow=true;scene.add(island);
@@ -99,7 +99,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     const particleGeo=new THREE.BufferGeometry(),positions=new Float32Array(particleCount*3),velocities:number[]=[];
     for(let i=0;i<particleCount;i++){positions[i*3]=(Math.random()-.5)*10;positions[i*3+1]=Math.random()*8;positions[i*3+2]=(Math.random()-.5)*8;velocities.push(.035+Math.random()*.07)}
     particleGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-    const particleMat=new THREE.PointsMaterial({color:snow?0xffffff:hot?0xffd99a:0xb9ddf2,size:snow?.075:.045,transparent:true,opacity:.8,sizeAttenuation:true});
+    const particleMat=new THREE.PointsMaterial({color:snow?0xffffff:hot?0xffd99a:0xb9ddf2,size:snow ? 0.075 : 0.045,transparent:true,opacity:.8,sizeAttenuation:true});
     const drops=new THREE.Points(particleGeo,particleMat);particles.add(drops);
     const lightning=new THREE.PointLight(0xdcecff,0,18);lightning.position.set(1,5,2);scene.add(lightning);
     const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:night?0x19283a:0x91b3c7,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.36;floor.receiveShadow=true;scene.add(floor);
@@ -113,7 +113,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointermove',move);renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',wheel,{passive:true});
     const resize=()=>{if(!root.clientWidth||!root.clientHeight)return;camera.aspect=root.clientWidth/root.clientHeight;camera.updateProjectionMatrix();renderer.setSize(root.clientWidth,root.clientHeight,false)};
     observer=new ResizeObserver(resize);observer.observe(root);resize();
-    const animate=(t:number)=>{frame=requestAnimationFrame(animate);const dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;cloudGroup.position.x=Math.sin(t*.00008)*.32;stars.rotation.y=t*.000006;const p=particleGeo.attributes.position.array as Float32Array;for(let i=0;i<particleCount;i++){p[i*3+1]-=velocities[i]*(snow?.35:rain||storm?1.8:.35);p[i*3]+=rain||storm?.012:0;if(p[i*3+1]<.2){p[i*3+1]=8+Math.random()*2;p[i*3]=(Math.random()-.5)*10}}particleGeo.attributes.position.needsUpdate=true;
+    const animate=(t:number)=>{frame=requestAnimationFrame(animate);const dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;cloudGroup.position.x=Math.sin(t*.00008)*.32;stars.rotation.y=t*.000006;const p=particleGeo.attributes.position.array as Float32Array;for(let i=0;i<particleCount;i++){p[i*3+1]-=velocities[i]*(snow ? 0.35 : rain || storm ? 1.8 : 0.35);p[i*3]+=rain || storm ? 0.012 : 0;if(p[i*3+1]<.2){p[i*3+1]=8+Math.random()*2;p[i*3]=(Math.random()-.5)*10}}particleGeo.attributes.position.needsUpdate=true;
       if(storm&&t>lightningAt){lightningAt=t+3500+Math.random()*5500;lightningEnd=t+180+Math.random()*130;lightning.intensity=5+Math.random()*8}
       if(t>lightningEnd)lightning.intensity=Math.max(0,lightning.intensity-dt*24);
       renderer.render(scene,camera)};
