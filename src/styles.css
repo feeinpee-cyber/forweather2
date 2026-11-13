@@ -75,3 +75,42 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 @media(prefers-reduced-motion:reduce){.app{transition:none}.garden-diorama{transition:none}}
 
 .app.cloud.day{background:linear-gradient(155deg,#a9c1d2 0%,#d0dfe7 48%,#eef3f5 100%)}.app.cloud.night{background:linear-gradient(155deg,#1d354a,#344f63 58%,#5c7383)}.garden-cloud .garden-sky-glow{background:#c3d7e2}
+
+
+/* Rich atmospheric Apple-inspired sky + genuine WebGL diorama */
+.app{isolation:isolate}
+.app:before,.app:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0}
+.app:before{opacity:0;background-image:radial-gradient(2px 2px at 12% 18%,#fff 50%,transparent 65%),radial-gradient(1px 1px at 26% 42%,#fff 50%,transparent 65%),radial-gradient(2px 2px at 73% 14%,#fff 50%,transparent 65%),radial-gradient(1px 1px at 84% 33%,#fff 50%,transparent 65%),radial-gradient(1.5px 1.5px at 57% 9%,#fff 50%,transparent 65%),radial-gradient(1px 1px at 92% 66%,#fff 50%,transparent 65%),radial-gradient(1px 1px at 39% 78%,#fff 50%,transparent 65%);background-size:100% 100%;animation:skyTwinkle 5s ease-in-out infinite alternate}
+.app.night:before{opacity:.8}
+.app:after{opacity:.25;background:radial-gradient(ellipse at 78% 5%,rgba(255,255,255,.48),transparent 25%);mix-blend-mode:screen}
+.app.clear.day:after,.app.hot.day:after{background:radial-gradient(circle at 80% 8%,rgba(255,231,173,.78),transparent 20%),radial-gradient(ellipse at 80% 0%,rgba(255,255,255,.28),transparent 35%);opacity:.8}
+.app.storm:after{background:linear-gradient(110deg,transparent 40%,rgba(223,239,255,0) 48%,rgba(223,239,255,.65) 50%,transparent 53%);opacity:0;animation:stormFlash 8s infinite}
+.app.rain:after{background:repeating-linear-gradient(108deg,transparent 0 34px,rgba(255,255,255,.13) 35px,transparent 37px);opacity:.3;animation:rainDrift 1.3s linear infinite}
+@keyframes skyTwinkle{from{opacity:.45}to{opacity:.95}}
+@keyframes stormFlash{0%,92%,95%,100%{opacity:0}93%{opacity:.65}94%{opacity:.12}}
+@keyframes rainDrift{from{background-position:0 0}to{background-position:-35px 80px}}
+.layout,.topbar{z-index:1}
+.hero-card{position:relative;overflow:hidden;min-height:390px;grid-template-columns:minmax(210px,.85fr) minmax(320px,1.15fr);grid-template-rows:1fr auto;padding:28px 32px}
+.hero-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 76% 42%,rgba(255,255,255,.48),transparent 42%),linear-gradient(125deg,rgba(255,255,255,.18),transparent 60%);opacity:.9}
+.night .hero-card:before{background:radial-gradient(ellipse at 76% 42%,rgba(143,177,216,.2),transparent 45%),linear-gradient(125deg,rgba(255,255,255,.08),transparent 60%)}
+.hero-copy,.hero-art,.hero-foot{position:relative;z-index:1}
+.hero-copy{align-self:center}
+.hero-copy .eyebrow{letter-spacing:1.6px;font-size:10px;font-weight:700}
+.temperature{font-size:clamp(76px,8vw,112px);line-height:.98;letter-spacing:-7px;font-weight:300}
+.hero-copy h2{font-size:clamp(20px,2.2vw,29px);font-weight:600;letter-spacing:-.7px;margin:8px 0 5px}
+.hero-copy p{font-size:13px}
+.hero-art{min-height:290px;align-self:stretch}
+.garden-scene{height:100%;min-height:290px;width:100%;position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 15px 40px rgba(34,67,92,.08)}
+.night .garden-scene{background:linear-gradient(180deg,rgba(8,21,38,.18),rgba(8,21,38,.04));border-color:rgba(255,255,255,.12)}
+.garden-webgl-host{position:absolute;inset:0;cursor:grab;touch-action:none}
+.garden-webgl-host:active{cursor:grabbing}
+.garden-webgl-canvas{display:block;width:100%;height:100%;outline:none}
+.garden-scene-label{position:absolute;left:18px;right:18px;bottom:14px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+.garden-scene-label span{font-size:9px;letter-spacing:1.4px;font-weight:800;color:#fff}
+.garden-scene-label small{font-size:9px;color:rgba(255,255,255,.82)}
+.hero-foot{grid-column:1/-1}
+.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel{box-shadow:0 12px 34px rgba(42,77,101,.07)}
+.section-heading h3{letter-spacing:-.5px}
+@media(max-width:900px){.hero-card{grid-template-columns:minmax(0,.9fr) minmax(250px,1.1fr);min-height:340px}.hero-art{min-height:250px}.garden-scene{min-height:250px}}
+@media(max-width:650px){.hero-card{grid-template-columns:minmax(0,1fr) minmax(130px,.8fr);padding:20px 16px;min-height:280px}.hero-art,.garden-scene{min-height:220px}.garden-scene-label{left:9px;right:9px;bottom:8px;display:block}.garden-scene-label small{display:block;margin-top:4px}.temperature{font-size:64px;letter-spacing:-4px}.hero-copy .eyebrow{font-size:8px}.hero-copy h2{font-size:17px}.hero-copy p{font-size:10px}.hero-tags{gap:5px;flex-wrap:wrap}.hero-foot{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){.app:before,.app:after{animation:none}}
