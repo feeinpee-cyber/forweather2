@@ -102,7 +102,8 @@ function WeatherMap({latitude,longitude,name}:{latitude:number;longitude:number;
  const host=useRef<HTMLDivElement|null>(null),mapRef=useRef<any>(null),radarRef=useRef<any>(null),manifestRef=useRef<any>(null);
  const [frames,setFrames]=useState<{time:number;path:string}[]>([]),[frameIndex,setFrameIndex]=useState(0),[playing,setPlaying]=useState(false),[ready,setReady]=useState(false),[error,setError]=useState('');
  useEffect(()=>{
-  let disposed=false,observer:ResizeObserver|undefined,map:any;
+  setReady(false);setError('');setFrames([]);setFrameIndex(0);setPlaying(false);
+  let disposed=false,observer:ResizeObserver|undefined,map:any,refreshTimer:number|undefined;
   const init=async()=>{
    try{
     // @ts-ignore Leaflet is loaded from its browser ESM CDN build.
@@ -121,11 +122,11 @@ function WeatherMap({latitude,longitude,name}:{latitude:number;longitude:number;
     mapRef.current=map;
     const latest=available[available.length-1];radarRef.current=L.tileLayer(`${manifest.host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`,{opacity:.72,maxNativeZoom:7,maxZoom:7,attribution:'Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'}).addTo(map);
     setFrames(available);setFrameIndex(available.length-1);setReady(true);
-    observer=new ResizeObserver(()=>map?.invalidateSize());observer.observe(host.current);
+    observer=new ResizeObserver(()=>map?.invalidateSize());observer.observe(host.current);refreshTimer=window.setInterval(async()=>{try{const update=await fetch('https://api.rainviewer.com/public/weather-maps.json');if(!update.ok)return;const fresh=await update.json();const nextFrames=(fresh.radar?.past||[]) as {time:number;path:string}[];if(!disposed&&nextFrames.length){manifestRef.current=fresh;setFrames(nextFrames);setFrameIndex(nextFrames.length-1)}}catch{ /* Keep the last usable radar frames if refresh fails. */ }},600000);
    }catch(e){if(!disposed)setError('Radar is temporarily unavailable. The regular forecast is still available.');console.warn('ForWeather radar map unavailable',e)}
   };
   void init();
-  return()=>{disposed=true;observer?.disconnect();map?.remove();mapRef.current=null;radarRef.current=null;manifestRef.current=null};
+  return()=>{disposed=true;if(refreshTimer!==undefined)window.clearInterval(refreshTimer);observer?.disconnect();map?.remove();mapRef.current=null;radarRef.current=null;manifestRef.current=null};
  },[latitude,longitude,name]);
  useEffect(()=>{
   if(!frames.length||!radarRef.current||!manifestRef.current)return;
