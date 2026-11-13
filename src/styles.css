@@ -144,8 +144,8 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 
 
 /* Device-aware layouts and tactile, milky liquid-glass surfaces */
-.app{--glass-blur:26px;--glass-fill:rgba(247,251,255,.82);--glass-top:rgba(255,255,255,.94);--glass-edge:rgba(255,255,255,.95);--glass-shadow:rgba(31,58,78,.14)}
-.app.night{--glass-fill:rgba(28,45,63,.88);--glass-top:rgba(69,91,111,.72);--glass-edge:rgba(204,226,244,.25);--glass-shadow:rgba(0,0,0,.28)}
+.app{--glass-blur:26px;--glass-fill:rgba(244,249,253,.96);--glass-top:rgba(255,255,255,.99);--glass-edge:rgba(255,255,255,.95);--glass-shadow:rgba(31,58,78,.14)}
+.app.night{--glass-fill:rgba(30,48,66,.96);--glass-top:rgba(75,98,119,.9);--glass-edge:rgba(204,226,244,.25);--glass-shadow:rgba(0,0,0,.28)}
 .topbar,.mobile-nav,.search-wrap,.search-results,.hero-card,.hourly-card,.daily-card,.metric-card,.sun-strip,.insight-card,.page-panel,.icon-button,.locate-button,.settings-modal,.garden-scene{
   -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(145%);
   backdrop-filter:blur(var(--glass-blur)) saturate(145%);
@@ -162,7 +162,7 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
   opacity:.72;
 }
 .night .hero-card,.night .hourly-card,.night .daily-card,.night .metric-card,.night .sun-strip,.night .insight-card,.night .page-panel,.night .settings-modal{
-  background:linear-gradient(145deg,rgba(94,117,138,.74),rgba(31,50,68,.91) 52%,rgba(39,61,80,.9));
+  background:linear-gradient(145deg,rgba(111,136,157,.92),rgba(32,51,69,.97) 52%,rgba(39,61,80,.96));
   border-color:rgba(220,238,250,.28);
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.24),inset 0 -1px 0 rgba(0,0,0,.12),0 16px 38px rgba(0,0,0,.24);
 }
