@@ -574,3 +574,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .weather-art .garden-scene-label{bottom:14px}
 @media(max-width:650px){.weather-art{min-height:188px}.art-cloud{left:12%;transform:scale(.72)}.art-cloud-two{left:37%;transform:scale(.5)}.art-celestial{width:62px;height:62px}.art-moon{width:58px;height:58px}.fx-sun{width:70vw;height:70vw;right:-25%;top:-12%}}
 @media(prefers-reduced-motion:reduce){.weather-effects i,.weather-art *{animation:none!important;transition:none!important}}
+
+
+/* The atmosphere now replaces the decorative weather render in the hero */
+.hero-card{grid-template-columns:minmax(0,1fr);min-height:0}
+.hero-copy{max-width:760px}
+.hero-foot{grid-column:1/-1}
+@media(max-width:650px){.hero-card{grid-template-columns:minmax(0,1fr)}}
