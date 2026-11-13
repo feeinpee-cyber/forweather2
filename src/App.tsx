@@ -33,7 +33,7 @@ const DEFAULT_PLACE: Place = { name: 'Riyadh', country: 'Saudi Arabia', latitude
 const API = 'https://api.open-meteo.com/v1/forecast';
 const codeText = (c:number) => c===0?'Clear sky':c<=2?'Partly cloudy':c===3?'Overcast':c<=48?'Foggy':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Rain showers':c<=86?'Snow showers':c>=95?'Thunderstorms':'Cloudy';
 function WeatherIcon({code,size=22}:{code:number,size?:number}) { const p={size,strokeWidth:1.7}; if(code===0) return <Sun {...p}/>; if(code<=3)return <Cloud {...p}/>; if(code<=48)return <CloudFog {...p}/>; if(code<=57)return <CloudDrizzle {...p}/>; if(code<=67||code<=82)return <CloudRain {...p}/>; if(code<=77||code<=86)return <CloudSnow {...p}/>; return <CloudLightning {...p}/>; }
-function getTheme(c:number,temp=20){if(c>=95)return 'storm';if(c>=71&&c<=86)return 'snow';if(c<=48&&c>=45)return 'fog';if(c===3)return 'cloud';if(c>=51)return 'rain';if(temp>=35&&c<=2)return 'hot';return 'clear'}
+function getTheme(c:number,temp=20){if(c>=95)return 'storm';if((c>=71&&c<=77)||c===85||c===86)return 'snow';if(c<=48&&c>=45)return 'fog';if(c===3)return 'cloud';if(c>=51)return 'rain';if(temp>=35&&c<=2)return 'hot';return 'clear'}
 function FWLogo(){return <div className="brand-mark" aria-label="ForWeather logo"><span>FW</span><i className="logo-drop d1"/><i className="logo-drop d2"/><i className="logo-drop d3"/></div>}
 function fmtTime(iso:string, tz?:string){try{return new Intl.DateTimeFormat('en',{hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date(iso))}catch{return '--:--'}}
 
@@ -123,7 +123,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
   };
   void mount();return()=>{disposed=true;cleanup?.();if(renderer){renderer.dispose()}};
  },[code,temp,isDay]);
- return <div className="garden-scene"><div className="garden-scene-label"><span>{code>=95?'THUNDER & LIGHTNING':code>=71&&code<=86?'SNOWFALL':code>=51?'RAIN SHOWERS':code>=45?'MIST & FOG':temp>=35?'SUN & HEAT':!isDay?'MOONLIT SKY':'SUNNY SKIES'}</span><small>{ready?'Drag to orbit · scroll to zoom':'Preparing 3D weather scene…'}</small></div><div ref={host} className="garden-webgl-host"/></div>
+ return <div className="garden-scene"><div className="garden-scene-label"><span>{code>=95?'THUNDER & LIGHTNING':((code>=71&&code<=77)||code===85||code===86)?'SNOWFALL':code>=51?'RAIN SHOWERS':code>=45?'MIST & FOG':temp>=35?'SUN & HEAT':!isDay?'MOONLIT SKY':'SUNNY SKIES'}</span><small>{ready?'Drag to orbit · scroll to zoom':'Preparing 3D weather scene…'}</small></div><div ref={host} className="garden-webgl-host"/></div>
 }
 function App(){
  const [place,setPlace]=useState<Place>(DEFAULT_PLACE),[weather,setWeather]=useState<Weather|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[results,setResults]=useState<Place[]>([]),[tab,setTab]=useState('Today'),[now,setNow]=useState(new Date()),[sound,setSound]=useState(false),[uiSounds,setUiSounds]=useState(true),[ambience,setAmbience]=useState(false),[volume,setVolume]=useState(24),[settings,setSettings]=useState(false),[unit,setUnit]=useState<'C'|'F'>(()=>{try{return localStorage.getItem('fw-unit')==='F'?'F':'C'}catch{return 'C'}}),[saved,setSaved]=useState<Place[]>(()=>{try{const v=JSON.parse(localStorage.getItem('fw-saved')||'null');return Array.isArray(v)&&v.length?v:[DEFAULT_PLACE]}catch{return [DEFAULT_PLACE]}});
