@@ -206,3 +206,29 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 @media(prefers-reduced-motion:reduce){
  .app,.hero-card,.metric-card,.hourly-card,.daily-card,.page-panel{transition:none!important}
 }
+
+
+/* Final interaction and information hierarchy refinements */
+.chart-switcher{display:flex;gap:6px;align-items:center;margin:0 0 10px;padding:4px;width:max-content;max-width:100%;border:1px solid var(--line);border-radius:999px;background:var(--glass);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+.chart-switcher button{border:0;background:transparent;color:var(--muted);padding:8px 13px;border-radius:999px;font:inherit;font-size:11px;font-weight:650;cursor:pointer;transition:background .2s ease,color .2s ease,box-shadow .2s ease}
+.chart-switcher button:hover{color:var(--ink);background:var(--accent-soft)}
+.chart-switcher button.active{color:var(--ink);background:var(--glass-strong);box-shadow:0 2px 8px rgba(25,48,65,.1),inset 0 1px 0 rgba(255,255,255,.8)}
+.daily-wind{display:flex;align-items:center;gap:4px;grid-column:1/-1;color:var(--muted);font-size:10px;margin-top:-5px}
+.daily-wind svg{color:var(--accent)}
+button:focus-visible,input:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 68%,white);outline-offset:3px}
+button{ -webkit-tap-highlight-color:transparent }
+.chart-wrap{min-height:160px}
+.hourly-scroll{scrollbar-width:thin;scrollbar-color:var(--accent-soft) transparent}
+.metric-card,.insight-card,.daily-row,.hour{transition:background .22s ease,border-color .22s ease,transform .22s ease}
+@media(hover:hover) and (pointer:fine){
+ .metric-card:hover,.insight-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px var(--glass-shadow)}
+ .chart-switcher button:hover{transform:translateY(-1px)}
+}
+@media(max-width:650px){
+ .chart-switcher{width:100%;justify-content:space-between}
+ .chart-switcher button{flex:1;padding:9px 6px;font-size:10px}
+ .daily-wind{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .chart-switcher button,.metric-card,.insight-card,.daily-row,.hour{transition:none!important}
+}
