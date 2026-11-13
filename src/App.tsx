@@ -3,7 +3,30 @@ import { Activity, Bell, CalendarDays, ChevronDown, Cloud, CloudDrizzle, CloudFo
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 type Place = { name: string; country?: string; latitude: number; longitude: number; timezone?: string };
-type Weather = { current: any; hourly: any; daily: any; air?: any };
+type HourlyWeather = {
+  time: string[];
+  temperature_2m: number[];
+  precipitation_probability: number[];
+  wind_speed_10m: number[];
+  weather_code: number[];
+};
+type DailyWeather = {
+  time: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
+  precipitation_probability_max: number[];
+  sunrise: string[];
+  sunset: string[];
+  uv_index_max: number[];
+};
+type Weather = {
+  timezone?: string;
+  current: any;
+  hourly: HourlyWeather;
+  daily: DailyWeather;
+  air?: any;
+};
 const DEFAULT_PLACE: Place = { name: 'Riyadh', country: 'Saudi Arabia', latitude: 24.7136, longitude: 46.6753, timezone: 'Asia/Riyadh' };
 const API = 'https://api.open-meteo.com/v1/forecast';
 const codeText = (c:number) => c===0?'Clear sky':c<=2?'Partly cloudy':c===3?'Overcast':c<=48?'Foggy':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Rain showers':c<=86?'Snow showers':c>=95?'Thunderstorms':'Cloudy';
