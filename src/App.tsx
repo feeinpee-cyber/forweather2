@@ -50,7 +50,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     const root=host.current;
     const scene=new THREE.Scene();
     const night=!isDay;
-    const storm=code>=95,rain=code>=51&&code<=67||code>=80&&code<=82,snow=code>=71&&code<=86,fog=code>=45&&code<=48,cloudy=code>=2&&code<=3,hot=temp>=35&&code<=1;
+    const storm=code>=95,rain=code>=51&&code<=67||code>=80&&code<=82,snow=(code>=71&&code<=77)||code===85||code===86,fog=code>=45&&code<=48,cloudy=code>=2&&code<=3,hot=temp>=35&&code<=1;
     const skyColor=night?0x101e35:storm?0x657b91:rain||fog||cloudy?0xaec3d1:snow?0xc9dce9:hot?0xeacb9f:0x9cccf0;
     scene.background=new THREE.Color(skyColor);
     scene.fog=new THREE.Fog(skyColor,12,28);
