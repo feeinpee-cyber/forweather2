@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Activity, Bell, CalendarDays, ChevronDown, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Compass, Droplets, Eye, Gauge, MapPin, Menu, Moon, Search, Settings2, Sun, Sunrise, Sunset, Thermometer, Volume2, VolumeX, Wind, X } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -41,7 +41,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
  const [rotation,setRotation]=useState(-18),[tilt,setTilt]=useState(9);
  const drag=useRef<{x:number;y:number;rotation:number;tilt:number}|null>(null);
  const tone=code>=95?'storm':code>=71&&code<=86?'snow':code>=51?'rain':code<=48&&code>=45?'fog':temp>=35&&code<=2?'hot':'clear';
- const onDown=(e:React.PointerEvent<HTMLDivElement>)=>{drag.current={x:e.clientX,y:e.clientY,rotation,tilt};e.currentTarget.setPointerCapture(e.pointerId)};
+ const onDown=(e:ReactPointerEvent<HTMLDivElement>)=>{drag.current={x:e.clientX,y:e.clientY,rotation,tilt};e.currentTarget.setPointerCapture(e.pointerId)};
  const onMove=(e:React.PointerEvent<HTMLDivElement>)=>{if(!drag.current)return;const dx=e.clientX-drag.current.x,dy=e.clientY-drag.current.y;setRotation(drag.current.rotation+dx*.65);setTilt(Math.max(-4,Math.min(24,drag.current.tilt-dy*.22)))};
  const onUp=()=>{drag.current=null};
  return <div className={`garden-scene garden-${tone} ${isDay?'garden-day':'garden-night'}`} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} role="img" aria-label={`Interactive miniature garden showing ${tone} weather. Drag to rotate.`}>
