@@ -73,3 +73,5 @@ footer{color:var(--muted)}footer span{color:var(--accent)}
 @media(max-width:900px){.hero-card{grid-template-columns:1fr 250px}}
 @media(max-width:650px){.hero-card{grid-template-columns:1fr 132px}.garden-scene{height:180px}.garden-diorama{width:145%}.garden-caption{bottom:0}.hero-copy h2{color:var(--ink)}.night .hero-copy h2,.night .temperature,.night .hero-foot b{color:#f2f6fa}.night .hero-copy p,.night .hero-tags span{color:#c0ced9}.night .hero-foot span{color:#c0ced9}}
 @media(prefers-reduced-motion:reduce){.app{transition:none}.garden-diorama{transition:none}}
+
+.app.cloud.day{background:linear-gradient(155deg,#a9c1d2 0%,#d0dfe7 48%,#eef3f5 100%)}.app.cloud.night{background:linear-gradient(155deg,#1d354a,#344f63 58%,#5c7383)}.garden-cloud .garden-sky-glow{background:#c3d7e2}
