@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Activity, CalendarDays, Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Compass, Droplets, Eye, Gauge, MapPin, Moon, Search, Settings2, Sun, Sunrise, Sunset, Wind, X, RefreshCw } from 'lucide-react';
 
 type Place = { name: string; country?: string; latitude: number; longitude: number; timezone?: string };
@@ -17,86 +17,25 @@ function fmtTime(iso:string,_tz?:string){try{const normalized=/[zZ]|[+-]\d{2}:\d
 function windDirection(degrees:number){return ['N','NE','E','SE','S','SW','W','NW'][Math.round(degrees/45)%8]}
 function moonInfo(date:Date){const cycle=29.530588853,known=Date.UTC(2000,0,6,18,14),age=((date.getTime()-known)/86400000%cycle+cycle)%cycle,phase=age/cycle,illumination=Math.round((1-Math.cos(2*Math.PI*phase))*50);const names=['New moon','Waxing crescent','First quarter','Waxing gibbous','Full moon','Waning gibbous','Last quarter','Waning crescent'];const index=Math.round(phase*8)%8;return {name:names[index],illumination,age:age.toFixed(1),emoji:['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][index]}}
 
-const WeatherGarden=memo(function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}){
- const host=useRef<HTMLDivElement|null>(null);
- const [ready,setReady]=useState(false),[failed,setFailed]=useState(false);
- useEffect(()=>{
-  setReady(false);setFailed(false);
-  let renderer:any,frame=0,observer:ResizeObserver|undefined,disposed=false,cleanup:(()=>void)|undefined;
-  const mount=async()=>{
-   try{
-    // @ts-ignore Three.js is loaded as an ES module from jsDelivr at runtime.
-    const THREE=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js');
-    if(disposed||!host.current)return;
-    const root=host.current;
-    const touch=window.matchMedia('(pointer: coarse)').matches;
-    const cores=navigator.hardwareConcurrency||4;
-    const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory;
-    const lowPower=cores<=4||(typeof memory==='number'&&memory<=4);
-    const pixelCap=touch?1.1:(lowPower?.68:.82);
-    const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const fpsInterval=reducedMotion?1000/8:touch?1000/42:1000/(lowPower?32:45);
-    const scene=new THREE.Scene();
-    const night=!isDay,storm=code>=95,rain=(code>=51&&code<=67)||(code>=80&&code<=82),snow=(code>=71&&code<=77)||code===85||code===86,fog=code>=45&&code<=48,cloudy=code>=2&&code<=3,hot=temp>=35&&code<=1;
-    const skyColor=night?0x101e35:storm?0x657b91:rain||fog||cloudy?0xaec3d1:snow?0xc9dce9:hot?0xeacb9f:0x9cccf0;
-    scene.background=new THREE.Color(skyColor);scene.fog=new THREE.Fog(skyColor,13,30);
-    const camera=new THREE.PerspectiveCamera(38,1,.1,100);
-    renderer=new THREE.WebGLRenderer({antialias:!lowPower,alpha:false,powerPreference:touch?'low-power':'high-performance',stencil:false,depth:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));
-    renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
-    renderer.domElement.className='garden-webgl-canvas';renderer.domElement.setAttribute('aria-label','Interactive real-time 3D weather scene. Drag to orbit.');
-    root.appendChild(renderer.domElement);
-    scene.add(new THREE.HemisphereLight(night?0x7896c0:0xe5f4ff,0x4c604a,night?1.15:1.8));
-    const sunLight=new THREE.DirectionalLight(night?0x9bb8e8:0xffedc5,night?.8:2.6);sunLight.position.set(-5,9,5);scene.add(sunLight);
-    const mat=(color:number,roughness=1)=>new THREE.MeshStandardMaterial({color,roughness});
-    const island=new THREE.Mesh(new THREE.CylinderGeometry(3.15,3.25,.48,8),mat(snow?0xc9dadd:hot?0x815c3e:0x4d6046));island.position.y=-.1;scene.add(island);
-    const land=new THREE.Mesh(new THREE.CylinderGeometry(3.12,3.12,.14,8),mat(snow?0xe7eff0:hot?0xb58b5a:rain||storm?0x426d54:0x6d9d61));land.position.y=.17;scene.add(land);
-    const soil=new THREE.Mesh(new THREE.CircleGeometry(2.93,8),mat(snow?0xdce8e8:hot?0x9b754d:0x638c55));soil.rotation.x=-Math.PI/2;soil.position.y=.245;scene.add(soil);
-    const trunkMat=mat(0x75503a),trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.25,1.55,6),trunkMat);trunk.position.set(-.55,1.02,-.38);scene.add(trunk);
-    for(let i=0;i<3;i++){const branch=new THREE.Mesh(new THREE.CylinderGeometry(.055,.095,.75,5),trunkMat);branch.position.set(-.55+(i-1)*.28,1.55,-.38);branch.rotation.z=(i-1)*-.52;scene.add(branch)}
-    const leafMat=mat(snow?0xcbd9d3:hot?0x8c9858:0x3f8957,.9);
-    for(let i=0;i<6;i++){const angle=i*Math.PI/3,leaf=new THREE.Mesh(new THREE.IcosahedronGeometry(i%2?.58:.49,1),leafMat);leaf.position.set(-.55+Math.cos(angle)*.44,2.12+(i%3)*.22,-.38+Math.sin(angle)*.4);scene.add(leaf)}
-    const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(.62,1),leafMat);crown.position.set(-.55,2.68,-.38);scene.add(crown);
-    const cropMat=mat(snow?0x8eaa9d:hot?0x96944f:0x4f9858,.9),leafGreen=mat(snow?0xb9cbc3:hot?0xb2a15c:0x7fbd67,.9);
-    const cropPositions=[[-1.75,-.9],[-1.25,-1.25],[-.75,-1.55],[.55,-1.55],[1.05,-1.3],[1.55,-.92],[1.95,-.45]];
-    cropPositions.forEach(([x,z],i)=>{const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,.65+(i%3)*.12,5),cropMat);stem.position.set(x,.58,z);scene.add(stem);for(let j=0;j<2;j++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.17,6,5),leafGreen);leaf.scale.set(1,.24,.5);leaf.position.set(x+(j?-.12:.12),.62,z+(j?-.1:.1));scene.add(leaf)}});
-    const cloudGroup=new THREE.Group();scene.add(cloudGroup);const cloudMat=mat(night?0x53677f:storm?0x647486:0xf3f7f8);
-    const cloudTotal=lowPower?3:4;
-    for(let i=0;i<cloudTotal;i++){const cloud=new THREE.Group();for(let j=0;j<3;j++){const puff=new THREE.Mesh(new THREE.SphereGeometry(.5,8,7),cloudMat);puff.position.set((j-1)*.48,(j%2)*.18,0);cloud.add(puff)}cloud.position.set(-3.5+i*2.5,3.5+(i%2)*.5,-3);cloud.scale.setScalar(cloudy||rain||storm||snow?1.05:.7);cloudGroup.add(cloud)}
-    const celestial=new THREE.Group();scene.add(celestial);
-    const orb=new THREE.Mesh(new THREE.SphereGeometry(.48,16,12),night?new THREE.MeshStandardMaterial({color:0xf0e9cf,emissive:0x9badd2,emissiveIntensity:.25}):new THREE.MeshBasicMaterial({color:0xffe2a0}));orb.position.set(3.6,5.1,-3);celestial.add(orb);
-    if(!night){const halo=new THREE.Mesh(new THREE.SphereGeometry(.72,16,12),new THREE.MeshBasicMaterial({color:0xffd78c,transparent:true,opacity:.13,depthWrite:false}));halo.position.copy(orb.position);celestial.add(halo)}
-    const starCount=night?(lowPower?35:65):0,starPositions=new Float32Array(starCount*3);
-    for(let i=0;i<starCount;i++){starPositions[i*3]=(Math.random()-.5)*15;starPositions[i*3+1]=2+Math.random()*6;starPositions[i*3+2]=-4-Math.random()*7}
-    const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THREE.BufferAttribute(starPositions,3));
-    const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:.045,transparent:true,opacity:.9}));scene.add(stars);
-    const particleCount=rain||snow||storm?(lowPower?28:55):hot?14:0;
-    const particleGeo=new THREE.BufferGeometry(),positions=new Float32Array(particleCount*3),velocities:number[]=[];
-    for(let i=0;i<particleCount;i++){positions[i*3]=(Math.random()-.5)*10;positions[i*3+1]=Math.random()*8;positions[i*3+2]=(Math.random()-.5)*8;velocities.push(.035+Math.random()*.07)}
-    particleGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-    const drops=new THREE.Points(particleGeo,new THREE.PointsMaterial({color:snow?0xffffff:hot?0xffd99a:0xb9ddf2,size:snow?.075:.045,transparent:true,opacity:.8,sizeAttenuation:true}));scene.add(drops);
-    const lightning=new THREE.PointLight(0xdcecff,0,18);lightning.position.set(1,5,2);scene.add(lightning);
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat(night?0x19283a:0x91b3c7));floor.rotation.x=-Math.PI/2;floor.position.y=-.36;scene.add(floor);
-    let pointerDown=false,lastX=0,lastY=0,yaw=-.48,pitch=-.25,zoom=10.7,targetYaw=yaw,targetPitch=pitch,targetZoom=zoom,lightningAt=0,lightningEnd=0,lastTime=0,lastRender=0,visible=true;
-    const updateCamera=()=>{camera.position.set(Math.sin(yaw)*Math.cos(pitch)*zoom,Math.sin(pitch)*zoom+2.1,Math.cos(yaw)*Math.cos(pitch)*zoom);camera.lookAt(0,1.05,0)};updateCamera();
-    const down=(e:PointerEvent)=>{pointerDown=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
-    const move=(e:PointerEvent)=>{if(!pointerDown)return;targetYaw-=(e.clientX-lastX)*.008;targetPitch=Math.max(-.08,Math.min(.72,targetPitch+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY};
-    const up=()=>{pointerDown=false},wheel=(e:WheelEvent)=>{targetZoom=Math.max(7.5,Math.min(15,targetZoom+e.deltaY*.008))};
-    renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointermove',move);renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',wheel,{passive:true});
-    const resize=()=>{if(!root.clientWidth||!root.clientHeight)return;camera.aspect=root.clientWidth/root.clientHeight;camera.updateProjectionMatrix();renderer.setSize(root.clientWidth,root.clientHeight,false)};
-    observer=new ResizeObserver(resize);observer.observe(root);const visibility=new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting??true});visibility.observe(root);resize();
-    const animate=(t:number)=>{frame=requestAnimationFrame(animate);if(!visible||document.hidden)return;const dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;if(t-lastRender<fpsInterval)return;lastRender=t;yaw+=(targetYaw-yaw)*.13;pitch+=(targetPitch-pitch)*.13;zoom+=(targetZoom-zoom)*.13;updateCamera();if(!reducedMotion){cloudGroup.position.x=Math.sin(t*.00007)*.22;stars.rotation.y=t*.000004}
-      if(!reducedMotion){const p=particleGeo.attributes.position.array as Float32Array;for(let i=0;i<particleCount;i++){p[i*3+1]-=velocities[i]*(snow?.35:rain||storm?1.8:.35);p[i*3]+=rain||storm?.012:0;if(p[i*3+1]<.2){p[i*3+1]=8+Math.random()*2;p[i*3]=(Math.random()-.5)*10}}if(particleCount)particleGeo.attributes.position.needsUpdate=true}
-      if(!reducedMotion&&storm&&t>lightningAt){lightningAt=t+4500+Math.random()*6000;lightningEnd=t+150+Math.random()*100;lightning.intensity=4+Math.random()*6}if(t>lightningEnd)lightning.intensity=Math.max(0,lightning.intensity-dt*22);
-      renderer.render(scene,camera)};
-    animate(0);setReady(true);
-    cleanup=()=>{cancelAnimationFrame(frame);observer?.disconnect();visibility.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('wheel',wheel);scene.traverse((o:any)=>{o.geometry?.dispose?.();if(Array.isArray(o.material))o.material.forEach((m:any)=>m.dispose?.());else o.material?.dispose?.()});renderer.dispose();renderer.domElement.remove()};
-   }catch(err){console.error('3D weather scene failed to load',err);renderer?.dispose?.();renderer?.domElement?.remove?.();if(!disposed)setFailed(true)}
-  };
-  void mount();return()=>{disposed=true;cleanup?.()};
- },[code,temp,isDay]);
- return <div className="garden-scene"><div className="garden-scene-label"><span>{code>=95?'THUNDER & LIGHTNING':((code>=71&&code<=77)||code===85||code===86)?'SNOWFALL':code>=51?'RAIN SHOWERS':code>=45?'MIST & FOG':temp>=35?'SUN & HEAT':!isDay?'MOONLIT SKY':'SUNNY SKIES'}</span><small>{failed?'3D scene unavailable · check WebGL or connection':ready?'Drag to orbit · scroll to zoom':'Preparing weather scene…'}</small></div><div ref={host} className="garden-webgl-host"/></div>
-});
+function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}){
+ const snow=(code>=71&&code<=77)||code===85||code===86;
+ const storm=code>=95;
+ const rain=(code>=51&&code<=67)||(code>=80&&code<=82);
+ const fog=code>=45&&code<=48;
+ const cloudy=code>=2&&code<=3;
+ const hot=temp>=35&&code<=1;
+ const night=!isDay;
+ const label=storm?'THUNDER & LIGHTNING':snow?'SNOWFALL':rain?'RAIN SHOWERS':fog?'MIST & FOG':hot?'SUN & HEAT':night?'MOONLIT SKY':'SUNNY SKIES';
+ const description=storm?'Lightning and heavy clouds':snow?'Soft snow drifting through the air':rain?'Rainfall moving across the sky':fog?'Low clouds and drifting mist':cloudy?'Clouds moving with the breeze':night?'A calm night sky':'Sunlight and a gentle breeze';
+ return <div className={'garden-scene weather-art '+(storm?'art-storm':snow?'art-snow':rain?'art-rain':fog?'art-fog':cloudy?'art-cloud':hot?'art-hot':night?'art-night':'art-clear')} aria-label={description}>
+  <div className="art-glow"/><div className="art-celestial"/>
+  {night&&<div className="art-moon"/>}
+  <div className="art-cloud art-cloud-one"/><div className="art-cloud art-cloud-two"/>
+  {rain&&<div className="art-rain-streaks"/>}{snow&&<div className="art-snowflakes"/>}
+  {storm&&<div className="art-lightning"/>}{fog&&<div className="art-mist"/>}
+  <div className="art-horizon"/><div className="garden-scene-label"><span>{label}</span><small>{description}</small></div>
+ </div>
+}
 type ForecastChartProps={data:{time:string;temp:number;rain:number;wind:number}[];mode:'temperature'|'rain'|'wind';unit:'C'|'F';timezone:string};
 const ForecastChart=lazy(async()=>{
  const R=await import('recharts');
@@ -206,7 +145,7 @@ function App(){
  const activeHour=weather?.hourly?.time?.[Math.max(0,currentHour)]?Math.max(0,currentHour):0;const visibilityKm=weather?.hourly?.visibility?.[activeHour];const dewPoint=weather?.hourly?.dew_point_2m?.[activeHour];const quality=weather?.air?.current?.us_aqi;const aqiLabel=quality==null?'Unavailable':quality<=50?'Good':quality<=100?'Moderate':quality<=150?'Unhealthy for sensitive groups':quality<=200?'Unhealthy':quality<=300?'Very unhealthy':'Hazardous';const aqiAdvice=quality==null?'Air-quality readings are not available for this location.':quality<=50?'Air quality is satisfactory for most people.':quality<=100?'Most people can continue usual activities; unusually sensitive people may take care.':quality<=150?'Sensitive groups may want to reduce prolonged outdoor exertion.':quality<=200?'Consider reducing prolonged outdoor activity.':quality<=300?'Avoid prolonged outdoor activity and follow local health guidance.':'Avoid outdoor exertion and follow local public-health guidance.';
  const sunrise=daily[0]?.sunrise,sunset=daily[0]?.sunset;const moon=moonInfo(now);const locate=()=>{if(!navigator.geolocation){setError('Location is not supported by this browser.');return}navigator.geolocation.getCurrentPosition(pos=>choose({name:'Your location',latitude:pos.coords.latitude,longitude:pos.coords.longitude}),()=>setError('Location access was denied. You can still search for a city.'),{enableHighAccuracy:false,timeout:10000,maximumAge:300000})};
  return <div className={`app ${theme} ${c?.is_day===0?'night':'day'} ${deviceClass}`}>
-  <div className="ambient ambient-one"/><div className="ambient ambient-two"/><div className="rain-layer"/>
+  <div className={'weather-effects fx-'+theme+(c?.is_day===0?' fx-night':'')} aria-hidden="true"><i className="fx-cloud fx-cloud-a"/><i className="fx-cloud fx-cloud-b"/><i className="fx-sun"/><i className="fx-moon"/><i className="fx-rain"/><i className="fx-snow"/><i className="fx-wind"/><i className="fx-fog"/><i className="fx-lightning"/><i className="fx-stars"/></div>
   <header className="topbar"><div className="brand"><FWLogo/><div><b>ForWeather</b><small>Weather, with more feeling.</small></div></div><div className="top-actions"><div className="clock"><span>{time}</span><small>{date}</small></div><button className="icon-button refresh-button" onClick={()=>{load(place,true);playTone(700)}} aria-label="Refresh weather" title="Refresh weather" disabled={loading}><RefreshCw size={17}/></button><button className="icon-button" onClick={()=>{setSettings(true);playTone()}} aria-label="Settings"><Settings2/></button><button className="avatar" onClick={()=>{setSettings(true);playTone()}}>FW</button></div></header>
   <div className="layout"><aside className="sidebar"><div className="side-label">WORKSPACE</div>{['Today','Forecast','Maps','Insights'].map((x,i)=><button key={x} className={`nav-item ${tab===x?'active':''}`} onClick={()=>{setTab(x);playTone(620)}}>{[<Sun/>,<CalendarDays/>,<Compass/>,<Activity/>][i]}{x}</button>)}<div className="side-label locations-label">YOUR LOCATIONS <button title="Search for a city to add" aria-label="Search for a city to add" onClick={()=>searchInput.current?.focus()}>+</button></div>{saved.map(p=><div className="saved-location-row" key={`${p.latitude},${p.longitude}`}><button className={`location-item ${p.latitude===place.latitude&&p.longitude===place.longitude?'selected':''}`} onClick={()=>choose(p)}><MapPin size={15}/><span>{p.name}</span>{p.latitude===place.latitude&&p.longitude===place.longitude&&<i/>}</button><button className="remove-location" title={`Remove ${p.name}`} aria-label={`Remove ${p.name} from saved locations`} onClick={()=>setSaved(old=>old.filter(x=>x.latitude!==p.latitude||x.longitude!==p.longitude))}><X size={13}/></button></div>)}<div className="sidebar-bottom"><div className="mini-note"><span className="pulse"/> LIVE WEATHER DATA<small>Updated from Open-Meteo</small></div><button className="nav-item" onClick={()=>setSettings(true)}><Settings2/>Settings</button></div></aside>
   <main className="main">
