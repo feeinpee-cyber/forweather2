@@ -38,51 +38,93 @@ function FWLogo(){return <div className="brand-mark" aria-label="ForWeather logo
 function fmtTime(iso:string, tz?:string){try{return new Intl.DateTimeFormat('en',{hour:'numeric',minute:'2-digit',timeZone:tz}).format(new Date(iso))}catch{return '--:--'}}
 
 function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}){
- const [rotation,setRotation]=useState(-18),[tilt,setTilt]=useState(9);
- const drag=useRef<{x:number;y:number;rotation:number;tilt:number}|null>(null);
- const tone=code>=95?'storm':code>=71&&code<=86?'snow':code<=48&&code>=45?'fog':code===3?'cloud':code>=51?'rain':temp>=35&&code<=2?'hot':'clear';
- const onDown=(e:ReactPointerEvent<HTMLDivElement>)=>{drag.current={x:e.clientX,y:e.clientY,rotation,tilt};e.currentTarget.setPointerCapture(e.pointerId)};
- const onMove=(e:ReactPointerEvent<HTMLDivElement>)=>{if(!drag.current)return;const dx=e.clientX-drag.current.x,dy=e.clientY-drag.current.y;setRotation(drag.current.rotation+dx*.65);setTilt(Math.max(-4,Math.min(24,drag.current.tilt-dy*.22)))};
- const onUp=()=>{drag.current=null};
- return <div className={`garden-scene garden-${tone} ${isDay?'garden-day':'garden-night'}`} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} role="img" aria-label={`Interactive miniature garden showing ${tone} weather. Drag to rotate.`}>
-  <div className="garden-sky-glow"/>
-  <div className="garden-diorama" style={{transform:`perspective(720px) rotateX(${tilt}deg) rotateY(${rotation}deg)`}}>
-   <svg viewBox="0 0 360 260" className="garden-svg" aria-hidden="true">
-    <defs>
-     <linearGradient id="soilTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={tone==='snow'?'#f3f7f5':tone==='hot'?'#c99b65':tone==='rain'||tone==='storm'?'#527a65':'#82a879'}/><stop offset="1" stopColor={tone==='snow'?'#cbd9dc':tone==='hot'?'#936640':tone==='rain'||tone==='storm'?'#294e45':'#527b5b'}/></linearGradient>
-     <linearGradient id="soilSide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={tone==='snow'?'#aabfc2':tone==='hot'?'#895c3c':'#4b694e'}/><stop offset="1" stopColor={tone==='snow'?'#7f9ca2':tone==='hot'?'#68452f':'#2b483b'}/></linearGradient>
-     <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={tone==='snow'?'#dce8e5':tone==='hot'?'#9b9858':'#8fc78a'}/><stop offset="1" stopColor={tone==='snow'?'#a9c3c2':tone==='hot'?'#667448':'#367451'}/></linearGradient>
-     <filter id="gardenShadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="7"/></filter>
-    </defs>
-    <ellipse cx="181" cy="222" rx="125" ry="19" fill="#26394a" opacity=".18" filter="url(#gardenShadow)"/>
-    <path d="M48 139 179 72 315 137 183 211Z" fill="#29483e" opacity=".35"/>
-    <path d="M48 126 179 58 315 124 183 193Z" fill="url(#soilTop)" stroke="#ffffff" strokeOpacity=".38" strokeWidth="2"/>
-    <path d="M48 126 183 193 183 218 48 151Z" fill="url(#soilSide)"/>
-    <path d="M183 193 315 124 315 149 183 218Z" fill={tone==='snow'?'#8fa9aa':tone==='hot'?'#765039':'#345443'}/>
-    <path d="M67 127 179 70 296 127 183 184Z" fill="none" stroke="#ffffff" strokeOpacity=".2" strokeWidth="1.5"/>
-    {tone==='hot'&&<g stroke="#e8c28a" strokeWidth="2" opacity=".7"><path d="m83 133 11-6m12 19 9-5m90 12 10-6m34-24 9-5"/></g>}
-    {tone==='snow'&&<path d="M48 126 179 58 315 124 183 193Z" fill="#e9f1f0" opacity=".24"/>}
-    <g className="garden-tree">
-     <path d="M169 133 174 82 187 82 190 139Z" fill="#79543b"/><path d="M179 106 154 88M183 101 204 80" stroke="#79543b" strokeWidth="7" strokeLinecap="round"/>
-     <circle cx="165" cy="76" r="27" fill="url(#leaf)"/><circle cx="190" cy="65" r="31" fill="url(#leaf)"/><circle cx="211" cy="83" r="23" fill="url(#leaf)"/><circle cx="184" cy="91" r="25" fill="url(#leaf)"/>
-     {tone==='snow'&&<g fill="#f5fbfc" opacity=".9"><circle cx="162" cy="58" r="10"/><circle cx="192" cy="43" r="12"/><circle cx="211" cy="70" r="9"/></g>}
-     {tone==='hot'&&<g fill="#d7b76c"><circle cx="157" cy="79" r="3"/><circle cx="201" cy="62" r="3"/><circle cx="215" cy="89" r="3"/></g>}
-    </g>
-    <g className="garden-crops">
-     {[0,1,2,3].map((n)=><g key={n} transform={`translate(${91+n*18} ${145-n*4})`}><path d="M0 0Q-3-12-10-13M0 0Q4-13 11-15M0 0V-18" fill="none" stroke={tone==='snow'?'#789d8a':tone==='hot'?'#9a9b57':'#3f8050'} strokeWidth="3" strokeLinecap="round"/><ellipse cx="-10" cy="-14" rx="6" ry="3.5" fill={tone==='snow'?'#c4d9d0':tone==='hot'?'#b6a15e':'#8ecb78'} transform="rotate(25 -10 -14)"/><ellipse cx="11" cy="-16" rx="6" ry="3.5" fill={tone==='snow'?'#c4d9d0':tone==='hot'?'#a8a05a':'#77b96d'} transform="rotate(-25 11 -16)"/><circle cx="0" cy="-20" r="3" fill="#e6c66c"/></g>)}
-     {[0,1,2].map((n)=><g key={n} transform={`translate(${222+n*17} ${151-n*8})`}><path d="M0 0V-17M0-10Q-10-17-11-23M0-8Q9-17 11-22" fill="none" stroke={tone==='snow'?'#8aab9d':tone==='hot'?'#9b9858':'#39764b'} strokeWidth="3" strokeLinecap="round"/><ellipse cx="-11" cy="-23" rx="7" ry="4" fill={tone==='snow'?'#c7d9d2':tone==='hot'?'#b6a15e':'#8bc779'} transform="rotate(25 -11 -23)"/><ellipse cx="11" cy="-22" rx="7" ry="4" fill={tone==='snow'?'#c7d9d2':tone==='hot'?'#a8a05a':'#78b96d'} transform="rotate(-25 11 -22)"/></g>)}
-    </g>
-    {tone==='rain'&&<g fill="none" stroke="#b8e2f2" strokeWidth="2" strokeLinecap="round" opacity=".85"><path d="m82 53-5 12m35-30-5 12m168 21-5 12m-33-42-5 12m-99 83-5 12"/></g>}
-    {tone==='storm'&&<g fill="none" stroke="#d7e9f5" strokeWidth="2.5" strokeLinecap="round" opacity=".9"><path d="m78 46-7 15m43-27-7 15m166 17-7 15m-35-44-7 15"/></g>}
-    {tone==='snow'&&<g fill="#fff" opacity=".95"><circle cx="81" cy="50" r="3"/><circle cx="118" cy="30" r="2.5"/><circle cx="264" cy="44" r="3"/><circle cx="294" cy="76" r="2"/><circle cx="235" cy="22" r="2"/></g>}
-    {(tone==='clear'||tone==='hot')&&<g><circle cx="278" cy="45" r="18" fill="#ffd98d" opacity=".92"/><circle cx="278" cy="45" r="26" fill="#ffd98d" opacity=".12"/></g>}{tone==='cloud'&&<g fill="#edf4f7" opacity=".92"><ellipse cx="270" cy="54" rx="24" ry="12"/><circle cx="257" cy="48" r="13"/><circle cx="273" cy="43" r="17"/><circle cx="289" cy="51" r="12"/></g>}
-    {tone==='fog'&&<g stroke="#f4f8f8" strokeWidth="5" strokeLinecap="round" opacity=".5"><path d="M75 47h68m-47 14h92m73-24h38"/></g>}
-   </svg>
-  </div>
-  <div className="garden-caption"><span>{tone==='hot'?'DRY & SUNNY':tone==='clear'?(isDay?'SUNLIT GARDEN':'CLEAR NIGHT'):tone==='rain'?'FRESH AFTER RAIN':tone==='storm'?'STORMY CONDITIONS':tone==='snow'?'WINTER GARDEN':tone==='cloud'?'OVERCAST & CALM':'SOFT & MISTY'}</span><small>Drag to explore · live weather scene</small></div>
- </div>
+ const host=useRef<HTMLDivElement|null>(null);
+ const [ready,setReady]=useState(false);
+ useEffect(()=>{
+  let renderer:any,frame=0,observer:ResizeObserver|undefined,disposed=false,cleanup:(()=>void)|undefined;
+  const mount=async()=>{
+   try{
+    // @ts-ignore Three.js is loaded as an ES module from jsDelivr at runtime.
+    const THREE=await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js');
+    if(disposed||!host.current)return;
+    const root=host.current;
+    const scene=new THREE.Scene();
+    const night=!isDay;
+    const storm=code>=95,rain=code>=51&&code<=67||code>=80&&code<=82,snow=code>=71&&code<=86,fog=code>=45&&code<=48,cloudy=code>=2&&code<=3,hot=temp>=35&&code<=1;
+    const skyColor=night?0x101e35:storm?0x657b91:rain||fog||cloudy?0xaec3d1:snow?0xc9dce9:hot?0xeacb9f:0x9cccf0;
+    scene.background=new THREE.Color(skyColor);
+    scene.fog=new THREE.Fog(skyColor,12,28);
+    const camera=new THREE.PerspectiveCamera(38,1,.1,100);
+    camera.position.set(6.6,5.4,8.8);
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace=THREE.SRGBColorSpace;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+    renderer.domElement.className='garden-webgl-canvas';renderer.domElement.setAttribute('aria-label','Interactive real-time 3D weather garden. Drag to orbit.');
+    root.appendChild(renderer.domElement);
+    const hemi=new THREE.HemisphereLight(night?0x7896c0:0xe5f4ff,0x4c604a,night?1.1:2.1);scene.add(hemi);
+    const sunLight=new THREE.DirectionalLight(night?0x9bb8e8:0xffedc5,night?.75:3.1);sunLight.position.set(-5,9,5);sunLight.castShadow=true;sunLight.shadow.mapSize.set(1024,1024);scene.add(sunLight);
+    const groundMat=new THREE.MeshStandardMaterial({color:snow?0xe7eff0:hot?0xb58b5a:rain||storm?0x426d54:0x6d9d61,roughness:.94});
+    const island=new THREE.Mesh(new THREE.CylinderGeometry(3.15,3.25,.48,8,1),new THREE.MeshStandardMaterial({color:snow?0xc9dadd:hot?0x815c3e:0x4d6046,roughness:1}));
+    island.position.y=-.1;island.castShadow=true;island.receiveShadow=true;scene.add(island);
+    const land=new THREE.Mesh(new THREE.CylinderGeometry(3.12,3.12,.14,8,1),groundMat);land.position.y=.17;land.receiveShadow=true;land.castShadow=true;scene.add(land);
+    const soil=new THREE.Mesh(new THREE.CircleGeometry(2.93,8),new THREE.MeshStandardMaterial({color:snow?0xdce8e8:hot?0x9b754d:0x638c55,roughness:1}));soil.rotation.x=-Math.PI/2;soil.position.y=.245;scene.add(soil);
+    const trunkMat=new THREE.MeshStandardMaterial({color:0x75503a,roughness:1});
+    const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.25,1.55,7),trunkMat);trunk.position.set(-.55,1.02,-.38);trunk.castShadow=true;scene.add(trunk);
+    for(let i=0;i<3;i++){const branch=new THREE.Mesh(new THREE.CylinderGeometry(.055,.095,.75,6),trunkMat);branch.position.set(-.55+(i-1)*.28,1.55,-.38);branch.rotation.z=(i-1)*-.52;branch.castShadow=true;scene.add(branch)}
+    const leafMat=new THREE.MeshStandardMaterial({color:snow?0xcbd9d3:hot?0x8c9858:0x3f8957,roughness:.85});
+    for(let i=0;i<7;i++){const a=i*Math.PI*2/7;const leaf=new THREE.Mesh(new THREE.IcosahedronGeometry(i%2?.66:.55,2),leafMat);leaf.position.set(-.55+Math.cos(a)*.48,2.08+(i%3)*.25,-.38+Math.sin(a)*.42);leaf.scale.set(1,.92,1);leaf.castShadow=true;scene.add(leaf)}
+    const top=new THREE.Mesh(new THREE.IcosahedronGeometry(.68,2),leafMat);top.position.set(-.55,2.72,-.38);top.castShadow=true;scene.add(top);
+    const cropMat=new THREE.MeshStandardMaterial({color:snow?0x8eaa9d:hot?0x96944f:0x4f9858,roughness:.8});
+    const leafGreen=new THREE.MeshStandardMaterial({color:snow?0xb9cbc3:hot?0xb2a15c:0x7fbd67,roughness:.8});
+    const cropPositions=[[-1.75,-.9],[-1.25,-1.25],[-.75,-1.55],[.55,-1.55],[1.05,-1.3],[1.55,-.92],[1.95,-.45]];
+    cropPositions.forEach(([x,z],i)=>{
+      const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,.65+(i%3)*.12,6),cropMat);stem.position.set(x,.58,z);stem.castShadow=true;scene.add(stem);
+      for(let j=0;j<3;j++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.18,8,6),leafGreen);leaf.scale.set(1,.25,.52);leaf.position.set(x+(j-1)*.14,.58+j*.08,z+(j%2?-.12:.12));leaf.rotation.z=(j-1)*.6;leaf.castShadow=true;scene.add(leaf)}
+      if(i%2===0&&!snow){const fruit=new THREE.Mesh(new THREE.SphereGeometry(.105,12,10),new THREE.MeshStandardMaterial({color:i%4===0?0xd85d4d:0xe8b94d,roughness:.55}));fruit.position.set(x,.8,z);fruit.castShadow=true;scene.add(fruit)}
+    });
+    const rockMat=new THREE.MeshStandardMaterial({color:0x8c9b98,roughness:1});
+    for(let i=0;i<8;i++){const a=i*Math.PI/4;const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.12+(i%3)*.035,0),rockMat);rock.position.set(Math.cos(a)*2.5,.32,Math.sin(a)*2.5);rock.scale.y=.65;rock.castShadow=true;scene.add(rock)}
+    const cloudGroup=new THREE.Group();scene.add(cloudGroup);
+    const cloudMat=new THREE.MeshStandardMaterial({color:night?0x53677f:storm?0x647486:0xf3f7f8,roughness:1});
+    for(let i=0;i<5;i++){const cloud=new THREE.Group();for(let j=0;j<4;j++){const puff=new THREE.Mesh(new THREE.SphereGeometry(.48+(j%2)*.12,12,10),cloudMat);puff.position.set((j-1.5)*.47,(j%2)*.22,0);cloud.add(puff)}cloud.position.set(-4+i*2,3.3+(i%2)*.65,-2.5-(i%3));cloud.scale.setScalar(cloudy||rain||storm||snow?1.1:.72);cloudGroup.add(cloud)}
+    const celestial=new THREE.Group();scene.add(celestial);
+    if(night){const moon=new THREE.Mesh(new THREE.SphereGeometry(.52,24,20),new THREE.MeshStandardMaterial({color:0xf0e9cf,emissive:0x9badd2,emissiveIntensity:.28,roughness:.8}));moon.position.set(3.6,5.1,-3);celestial.add(moon)}
+    else{const sun=new THREE.Mesh(new THREE.SphereGeometry(.48,24,20),new THREE.MeshBasicMaterial({color:0xffe2a0}));sun.position.set(3.6,5.1,-3);celestial.add(sun);const halo=new THREE.Mesh(new THREE.SphereGeometry(.72,24,20),new THREE.MeshBasicMaterial({color:0xffd78c,transparent:true,opacity:.16,depthWrite:false}));halo.position.copy(sun.position);celestial.add(halo)}
+    const stars=new THREE.Group();scene.add(stars);
+    if(night){for(let i=0;i<100;i++){const star=new THREE.Mesh(new THREE.SphereGeometry(.018+(Math.random()*.025),5,5),new THREE.MeshBasicMaterial({color:i%5===0?0xffe9bd:0xffffff}));star.position.set((Math.random()-.5)*15,2+Math.random()*6,-4-Math.random()*7);stars.add(star)}}
+    const particles=new THREE.Group();scene.add(particles);
+    const particleCount=rain||snow||storm?240:hot?45:0;
+    const particleGeo=new THREE.BufferGeometry(),positions=new Float32Array(particleCount*3),velocities:number[]=[];
+    for(let i=0;i<particleCount;i++){positions[i*3]=(Math.random()-.5)*10;positions[i*3+1]=Math.random()*8;positions[i*3+2]=(Math.random()-.5)*8;velocities.push(.035+Math.random()*.07)}
+    particleGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+    const particleMat=new THREE.PointsMaterial({color:snow?0xffffff:hot?0xffd99a:0xb9ddf2,size:snow?.075:.045,transparent:true,opacity:.8,sizeAttenuation:true});
+    const drops=new THREE.Points(particleGeo,particleMat);particles.add(drops);
+    const lightning=new THREE.PointLight(0xdcecff,0,18);lightning.position.set(1,5,2);scene.add(lightning);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:night?0x19283a:0x91b3c7,roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.36;floor.receiveShadow=true;scene.add(floor);
+    let pointerDown=false,lastX=0,lastY=0,yaw=-.48,pitch=-.25,zoom=10.7,lightningAt=0,lightningEnd=0,lastTime=0;
+    const updateCamera=()=>{camera.position.set(Math.sin(yaw)*Math.cos(pitch)*zoom,Math.sin(pitch)*zoom+2.1,Math.cos(yaw)*Math.cos(pitch)*zoom);camera.lookAt(0,1.05,0)};
+    updateCamera();
+    const down=(e:PointerEvent)=>{pointerDown=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
+    const move=(e:PointerEvent)=>{if(!pointerDown)return;yaw-=(e.clientX-lastX)*.008;pitch=Math.max(-.08,Math.min(.72,pitch+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY;updateCamera()};
+    const up=()=>{pointerDown=false};
+    const wheel=(e:WheelEvent)=>{zoom=Math.max(7.5,Math.min(15,zoom+e.deltaY*.008));updateCamera()};
+    renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointermove',move);renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);renderer.domElement.addEventListener('wheel',wheel,{passive:true});
+    const resize=()=>{if(!root.clientWidth||!root.clientHeight)return;camera.aspect=root.clientWidth/root.clientHeight;camera.updateProjectionMatrix();renderer.setSize(root.clientWidth,root.clientHeight,false)};
+    observer=new ResizeObserver(resize);observer.observe(root);resize();
+    const animate=(t:number)=>{frame=requestAnimationFrame(animate);const dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;cloudGroup.position.x=Math.sin(t*.00008)*.32;stars.rotation.y=t*.000006;const p=particleGeo.attributes.position.array as Float32Array;for(let i=0;i<particleCount;i++){p[i*3+1]-=velocities[i]*(snow?.35:rain||storm?1.8:.35);p[i*3]+=rain||storm?.012:0;if(p[i*3+1]<.2){p[i*3+1]=8+Math.random()*2;p[i*3]=(Math.random()-.5)*10}}particleGeo.attributes.position.needsUpdate=true;
+      if(storm&&t>lightningAt){lightningAt=t+3500+Math.random()*5500;lightningEnd=t+180+Math.random()*130;lightning.intensity=5+Math.random()*8}
+      if(t>lightningEnd)lightning.intensity=Math.max(0,lightning.intensity-dt*24);
+      renderer.render(scene,camera)};
+    animate(0);setReady(true);
+    cleanup=()=>{cancelAnimationFrame(frame);observer?.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('wheel',wheel);scene.traverse((o:any)=>{o.geometry?.dispose?.();if(Array.isArray(o.material))o.material.forEach((m:any)=>m.dispose?.());else o.material?.dispose?.()});renderer.dispose();renderer.domElement.remove()};
+   }catch(err){console.error('3D weather scene failed to load',err)}
+  };
+  void mount();return()=>{disposed=true;cleanup?.();if(renderer){renderer.dispose()}};
+ },[code,temp,isDay]);
+ return <div className="garden-scene"><div className="garden-scene-label"><span>{code>=95?'THUNDER & LIGHTNING':code>=71&&code<=86?'SNOWFALL':code>=51?'RAIN SHOWERS':code>=45?'MIST & FOG':temp>=35?'SUN & HEAT':!isDay?'MOONLIT SKY':'SUNNY SKIES'}</span><small>{ready?'Drag to orbit · scroll to zoom':'Preparing 3D weather scene…'}</small></div><div ref={host} className="garden-webgl-host"/></div>
 }
-
 function App(){
  const [place,setPlace]=useState<Place>(DEFAULT_PLACE),[weather,setWeather]=useState<Weather|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[results,setResults]=useState<Place[]>([]),[tab,setTab]=useState('Today'),[now,setNow]=useState(new Date()),[sound,setSound]=useState(false),[uiSounds,setUiSounds]=useState(true),[ambience,setAmbience]=useState(false),[volume,setVolume]=useState(24),[settings,setSettings]=useState(false),[unit,setUnit]=useState<'C'|'F'>(()=>{try{return localStorage.getItem('fw-unit')==='F'?'F':'C'}catch{return 'C'}}),[saved,setSaved]=useState<Place[]>(()=>{try{const v=JSON.parse(localStorage.getItem('fw-saved')||'null');return Array.isArray(v)&&v.length?v:[DEFAULT_PLACE]}catch{return [DEFAULT_PLACE]}});
  const audio=useRef<AudioContext|null>(null), noise=useRef<AudioBufferSourceNode|null>(null), gain=useRef<GainNode|null>(null);
