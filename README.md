@@ -18,8 +18,9 @@ A responsive weather experience for desktop and mobile. Built with React, TypeSc
 The starter uses Open-Meteo forecast, geocoding and air-quality endpoints. No API key is required for basic non-commercial use. Check Open-Meteo's current terms and attribution requirements before public/commercial launch.
 
 ## Current prototype scope
-- Live location weather (browser geolocation) and city search.
-- Current conditions, hourly forecast, 7-day outlook, air quality.
+- City search and optional browser geolocation (requires permission).
+- Current conditions, hourly forecast, 7-day outlook, air quality, visibility and dew point where provider data is available.
+- Saved locations and temperature units remembered in the browser.
 - Responsive desktop/mobile navigation.
 - Animated weather scene, live city clock, day/night ambience.
 - Sound settings with user-initiated UI tones and synthesized weather ambience.
