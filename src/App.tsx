@@ -75,7 +75,7 @@ function WeatherGarden({code,temp,isDay}:{code:number;temp:number;isDay:boolean}
     {tone==='rain'&&<g fill="none" stroke="#b8e2f2" strokeWidth="2" strokeLinecap="round" opacity=".85"><path d="m82 53-5 12m35-30-5 12m168 21-5 12m-33-42-5 12m-99 83-5 12"/></g>}
     {tone==='storm'&&<g fill="none" stroke="#d7e9f5" strokeWidth="2.5" strokeLinecap="round" opacity=".9"><path d="m78 46-7 15m43-27-7 15m166 17-7 15m-35-44-7 15"/></g>}
     {tone==='snow'&&<g fill="#fff" opacity=".95"><circle cx="81" cy="50" r="3"/><circle cx="118" cy="30" r="2.5"/><circle cx="264" cy="44" r="3"/><circle cx="294" cy="76" r="2"/><circle cx="235" cy="22" r="2"/></g>}
-    {(tone==='clear'||tone==='hot')&&<g><circle cx="278" cy="45" r="18" fill="#ffd98d" opacity=".92"/><circle cx="278" cy="45" r="26" fill="#ffd98d" opacity=".12"/></g>}{tone==='cloud'&&<g fill="#edf4f7" opacity=".92"><ellipse cx="270" cy="54" rx="24" ry="12"/><circle cx="257" cy="48" r="13"/><circle cx="273" cy="43" r="17"/><circle cx="289" cy="51" r="12/></g>}
+    {(tone==='clear'||tone==='hot')&&<g><circle cx="278" cy="45" r="18" fill="#ffd98d" opacity=".92"/><circle cx="278" cy="45" r="26" fill="#ffd98d" opacity=".12"/></g>}{tone==='cloud'&&<g fill="#edf4f7" opacity=".92"><ellipse cx="270" cy="54" rx="24" ry="12"/><circle cx="257" cy="48" r="13"/><circle cx="273" cy="43" r="17"/><circle cx="289" cy="51" r="12"/></g>}
     {tone==='fog'&&<g stroke="#f4f8f8" strokeWidth="5" strokeLinecap="round" opacity=".5"><path d="M75 47h68m-47 14h92m73-24h38"/></g>}
    </svg>
   </div>
